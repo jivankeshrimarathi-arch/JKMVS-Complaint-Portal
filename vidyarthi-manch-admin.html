@@ -72,14 +72,29 @@ body{font-family:'Mukta',sans-serif;background:var(--cr);color:#1A0A00}
 </div>
 
 <script>
-/* ⚠️ इथे तोच Firebase Config टाका जो vidyarthi-manch.html मध्ये आहे */
+const firebaseConfig = {
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDD5o-yg5LDfvNuG8eyNh-WdH-GCSCRmYY",
   authDomain: "vidyarthi---manch.firebaseapp.com",
+  databaseURL: "https://vidyarthi---manch-default-rtdb.firebaseio.com",
   projectId: "vidyarthi---manch",
   storageBucket: "vidyarthi---manch.firebasestorage.app",
   messagingSenderId: "455378425843",
-  appId: "1:455378425843:web:1e2b594c03d966d7e92486"
+  appId: "1:455378425843:web:1e2b594c03d966d7e92486",
+  measurementId: "G-S74GHZ7231"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
