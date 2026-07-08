@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="विद्यार्थीनामा — जीवन केशरी मराठी विद्यार्थी समूह, नाशिक. विद्यार्थ्यांचे साहित्य, तांत्रिक प्रकल्प व मार्गदर्शनपर लेख.">
+<title>विद्यार्थीनामा — जीवन केशरी मराठी विद्यार्थी समूह</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#9B1C1C">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mukta:wght@500;600;700;800&family=Tiro+Devanagari+Marathi&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--k:#E8650A;--kd:#C2540A;--r:#9B1C1C;--rd:#7F1D1D;--rp:#5C0A0A;--g:#F59E0B;--cr:#FFF8F0;--ok:#1E8E3E;--sk:rgba(232,101,10,.28)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Mukta',sans-serif;background:var(--cr);color:#1A0A00;padding-top:65px}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--k);border-radius:3px}
+
+nav{position:fixed;top:0;width:100%;z-index:999;background:linear-gradient(135deg,var(--rp),var(--rd),var(--r));border-bottom:3px solid var(--k);box-shadow:0 3px 20px rgba(0,0,0,.4)}
+.ni{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:65px;padding:0 1.5rem}
+.nlogo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nlogo img{height:48px;width:48px;object-fit:contain;filter:drop-shadow(0 0 6px rgba(245,158,11,.6))}
+.nlt{font-family:'Baloo 2',sans-serif;font-size:1rem;font-weight:800;color:#fff;line-height:1.2}
+.nlt small{color:var(--g);font-size:.7rem;font-weight:500;display:block}
+.hbg{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:5px}
+.hbg span{width:24px;height:2px;background:#fff;border-radius:2px}
+.mnav{display:none;position:fixed;top:65px;left:0;right:0;background:var(--rp);z-index:998;padding:.8rem;flex-direction:column;gap:.4rem;border-bottom:3px solid var(--k)}
+.mnav.open{display:flex}
+.mnav a{color:#FFE4C4;text-decoration:none;font-size:.95rem;font-weight:600;padding:.6rem 1rem;border-radius:7px;border-left:3px solid var(--k)}
+
+.wrap{max-width:900px;margin:0 auto;padding:1.5rem 1rem 4rem}
+.hero{background:linear-gradient(135deg,var(--rp),var(--r));border-radius:16px;padding:2rem 1.5rem;color:#fff;margin-bottom:1.5rem}
+.hero h1{font-family:'Baloo 2',sans-serif;font-size:1.6rem}
+.hero p{margin-top:.5rem;color:#FFE4C4;font-size:.9rem;line-height:1.6}
+
+.tabs{display:flex;gap:.5rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.tab-btn{flex:1;min-width:110px;padding:.7rem .8rem;border:2px solid var(--k);background:#fff;color:var(--r);border-radius:10px;font-weight:700;font-family:inherit;font-size:.85rem;cursor:pointer}
+.tab-btn.active{background:var(--k);color:#fff}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadein .3s}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.cat-filter{display:flex;gap:.5rem;overflow-x:auto;margin-bottom:1rem;padding-bottom:.3rem}
+.cat-chip{flex-shrink:0;padding:.4rem .9rem;border-radius:20px;border:1.5px solid #E8CBB0;font-size:.78rem;font-weight:700;cursor:pointer;background:#fff;color:#5a3a20;white-space:nowrap}
+.cat-chip.active{background:var(--k);border-color:var(--k);color:#fff}
+
+.post-card{background:#fff;border-radius:12px;padding:1.1rem;box-shadow:0 3px 14px rgba(0,0,0,.07);margin-bottom:1rem;border-left:4px solid var(--k);cursor:pointer}
+.post-card.admin{border-left-color:var(--g)}
+.post-cat{display:inline-block;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:12px;background:#FFF4EA;color:var(--kd);margin-bottom:.4rem}
+.post-title{font-family:'Baloo 2',sans-serif;font-size:1.05rem;color:var(--rd);margin-bottom:.3rem}
+.post-meta{font-size:.75rem;color:#8a6a50;margin-bottom:.5rem}
+.post-excerpt{font-size:.85rem;color:#3a1c0a;line-height:1.6}
+.post-stats{display:flex;gap:1rem;margin-top:.7rem;font-size:.78rem;color:#8a6a50}
+
+.card{background:#fff;border-radius:14px;padding:1.3rem;box-shadow:0 4px 20px rgba(0,0,0,.08);margin-bottom:1.2rem}
+.card h2{font-family:'Baloo 2',sans-serif;font-size:1.05rem;color:var(--r);margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+.fg{margin-bottom:.9rem}
+.fg label{display:block;font-size:.82rem;font-weight:700;color:var(--rd);margin-bottom:.3rem}
+.fg input,.fg select,.fg textarea{width:100%;padding:.65rem .8rem;border:1.5px solid #E8CBB0;border-radius:8px;font-family:inherit;font-size:.9rem;background:#FFFDF9}
+.fg textarea{min-height:140px;resize:vertical}
+.req{color:var(--r)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+
+.gsi-card{background:linear-gradient(135deg,#FFF4EA,#fff);border:2px dashed var(--k);border-radius:14px;padding:1.2rem;text-align:center;margin-bottom:1.2rem}
+.gsi-card p{font-size:.85rem;color:#5a3a20;margin-bottom:.8rem}
+.gbtn{background:#fff;border:1.5px solid #dadce0;border-radius:24px;padding:.6rem 1.4rem;font-weight:700;font-size:.9rem;color:#3c4043;cursor:pointer;display:inline-flex;align-items:center;gap:.6rem;font-family:inherit}
+.gbtn img{width:20px;height:20px}
+.gsi-verified{display:none;align-items:center;justify-content:center;gap:.6rem;background:#DCFCE7;border:1px solid var(--ok);border-radius:10px;padding:.7rem 1rem;font-size:.85rem;font-weight:700;color:#166534}
+.gsi-verified img{width:26px;height:26px;border-radius:50%}
+.locked{background:#F3F0EA !important;color:#666 !important}
+
+.upload-box{border:2px dashed #E8CBB0;border-radius:10px;padding:1rem;text-align:center;cursor:pointer}
+.file-chip{background:#FFF4EA;border:1px solid #E8CBB0;border-radius:8px;padding:.35rem .6rem;font-size:.75rem;display:inline-flex;align-items:center;gap:.4rem;margin-top:.5rem}
+
+.disclaimer{background:#FFF4EA;border:1.5px solid var(--k);border-radius:10px;padding:1rem}
+.disclaimer label{display:flex;gap:.6rem;font-size:.82rem;margin-bottom:.6rem;line-height:1.5;cursor:pointer}
+
+.btn{background:var(--k);color:#fff;border:none;padding:.85rem 1.6rem;border-radius:10px;font-weight:700;font-family:inherit;font-size:.95rem;cursor:pointer;width:100%}
+.btn:disabled{background:#ccc}
+.msg{padding:.8rem 1rem;border-radius:8px;margin-top:1rem;font-size:.86rem;font-weight:600;display:none}
+.msg.ok{display:block;background:#DCFCE7;color:#166534;border:1px solid var(--ok)}
+.msg.err{display:block;background:#FEE2E2;color:#991B1B;border:1px solid var(--r)}
+
+.empty{text-align:center;padding:2rem;color:#8a6a50;font-size:.9rem}
+.spin{text-align:center;padding:2rem;color:var(--k)}
+
+/* Post detail modal */
+.modal{position:fixed;inset:0;background:rgba(20,8,0,.75);z-index:9999;display:none;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto}
+.modal.open{display:flex}
+.modal-inner{background:#fff;border-radius:14px;max-width:700px;width:100%;margin:1.5rem auto;padding:1.5rem;position:relative}
+.modal-close{position:absolute;top:1rem;right:1rem;font-size:1.5rem;color:var(--r);cursor:pointer;background:none;border:none}
+.modal-body{white-space:pre-wrap;font-size:.92rem;line-height:1.8;color:#2a1608;margin-top:1rem}
+.modal-img{width:100%;max-height:320px;object-fit:cover;border-radius:10px;margin-top:1rem}
+.react-bar{display:flex;gap:.8rem;margin-top:1.3rem;padding-top:1rem;border-top:1px solid #eee;flex-wrap:wrap;align-items:center}
+.react-btn{border:1.5px solid #E8CBB0;background:#fff;border-radius:20px;padding:.5rem 1.1rem;font-weight:700;font-size:.85rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;font-family:inherit}
+.react-btn.liked{background:#DCFCE7;border-color:var(--ok);color:#166534}
+.react-btn.disliked{background:#FEE2E2;border-color:var(--r);color:#991B1B}
+.react-note{width:100%;margin-top:.7rem}
+.react-note textarea{width:100%;min-height:70px;padding:.6rem;border:1.5px solid #E8CBB0;border-radius:8px;font-family:inherit;font-size:.85rem}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="ni">
+    <a href="index.html#home" class="nlogo">
+      <img src="https://i.ibb.co/SDR0DXqb/ei-1764843850590-removebg-preview.png" alt="JKMVS Logo">
+      <div class="nlt">जीवन केशरी मराठी विद्यार्थी समूह<small>नाशिक, महाराष्ट्र</small></div>
+    </a>
+    <div class="hbg" onclick="document.getElementById('mnav').classList.toggle('open')"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+<div class="mnav" id="mnav">
+  <a href="index.html#home">🏠 मुखपृष्ठ</a>
+  <a href="vidyarthi-manch.html">🎓 विद्यार्थी मंच</a>
+  <a href="vidyarthi-nama.html">📖 विद्यार्थीनामा</a>
+  <a href="index.html#portal">📋 तक्रार पोर्टल</a>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>📖 विद्यार्थीनामा</h1>
+    <p>विद्यार्थ्यांचे साहित्य, तांत्रिक प्रकल्प व मार्गदर्शनपर लेख — एकाच व्यासपीठावर. वाचण्यासाठी सर्वांसाठी खुले; प्रतिक्रिया देण्यासाठी Google साइन इन आवश्यक.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('feed')"><i class="fas fa-book-open"></i> वाचा</button>
+    <button class="tab-btn" onclick="showTab('submit')"><i class="fas fa-pen"></i> साहित्य सादर करा</button>
+  </div>
+
+  <!-- ===================== FEED TAB ===================== -->
+  <div class="tab-panel active" id="tab-feed">
+    <div class="cat-filter" id="catFilter">
+      <div class="cat-chip active" data-cat="">सर्व</div>
+      <div class="cat-chip" data-cat="कविता">कविता</div>
+      <div class="cat-chip" data-cat="निबंध">निबंध</div>
+      <div class="cat-chip" data-cat="लेख">लेख</div>
+      <div class="cat-chip" data-cat="चित्रकला">चित्रकला</div>
+      <div class="cat-chip" data-cat="तांत्रिक प्रकल्प">तांत्रिक प्रकल्प</div>
+      <div class="cat-chip" data-cat="मार्गदर्शन">मार्गदर्शन</div>
+    </div>
+    <div id="feedResults"><div class="spin"><i class="fas fa-spinner fa-spin"></i> लोड होत आहे...</div></div>
+  </div>
+
+  <!-- ===================== SUBMIT TAB ===================== -->
+  <div class="tab-panel" id="tab-submit">
+    <form id="namaForm">
+
+      <div class="card gsi-card">
+        <h2 style="justify-content:center"><i class="fab fa-google"></i> ओळख पडताळणी</h2>
+        <p>साहित्य सादर करण्यापूर्वी Google खात्याने साइन इन करा.</p>
+        <button type="button" class="gbtn" id="gBtn" onclick="doGoogleSignIn()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G"> Continue with Google
+        </button>
+        <div class="gsi-verified" id="gsiVerified"><img id="gsiPic" src="" alt=""><span id="gsiText"></span></div>
+      </div>
+
+      <div class="card">
+        <h2><i class="fas fa-tags"></i> साहित्य प्रकार</h2>
+        <div class="fg">
+          <select required id="fCategory" onchange="onCategoryChange()">
+            <option value="">-- निवडा --</option>
+            <option>कविता</option>
+            <option>निबंध</option>
+            <option>लेख</option>
+            <option>चित्रकला</option>
+            <option>रेखाचित्र</option>
+            <option>वैचारिक लेख</option>
+            <option>तांत्रिक प्रकल्प</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><i class="fas fa-user"></i> वैयक्तिक माहिती</h2>
+        <div class="grid2">
+          <div class="fg"><label>पूर्ण नाव <span class="req">*</span></label><input required id="fName"></div>
+          <div class="fg"><label>ईमेल (Google पडताळलेला) <span class="req">*</span></label><input required id="fEmail" readonly></div>
+          <div class="fg"><label>इयत्ता / अभ्यासक्रम <span class="req">*</span></label><input required id="fClass"></div>
+          <div class="fg"><label>शाळा/महाविद्यालयाचे नाव <span class="req">*</span></label><input required id="fSchool"></div>
+          <div class="fg" style="grid-column:1/-1"><label>संपर्क क्रमांक <span class="req">*</span></label><input required id="fContact" type="tel" pattern="[0-9]{10}"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><i class="fas fa-file-lines"></i> शीर्षक व साहित्य</h2>
+        <div class="fg"><label>शीर्षक <span class="req">*</span></label><input required id="fTitle"></div>
+        <div class="fg" id="fContentWrap"><label>साहित्य मजकूर <span class="req">*</span></label><textarea required id="fContent" placeholder="तुमची कविता/निबंध/लेख इथे टाइप करा..."></textarea></div>
+      </div>
+
+      <!-- तांत्रिक प्रकल्प extra fields -->
+      <div class="card" id="techFields" style="display:none">
+        <h2><i class="fas fa-microchip"></i> तांत्रिक प्रकल्प तपशील</h2>
+        <div class="fg"><label>प्रकल्पाचा उद्देश</label><textarea id="fPurpose" style="min-height:60px"></textarea></div>
+        <div class="fg"><label>प्रास्ताविक</label><textarea id="fIntro" style="min-height:60px"></textarea></div>
+        <div class="fg"><label>प्रकल्पाची वैशिष्ट्ये</label><textarea id="fFeatures" style="min-height:60px"></textarea></div>
+        <div class="fg"><label>वापरलेले तंत्रज्ञान</label><input id="fTech"></div>
+        <div class="fg"><label>निष्कर्ष</label><textarea id="fConclusion" style="min-height:60px"></textarea></div>
+        <div class="fg"><label>व्हिडिओ लिंक (YouTube/Instagram/Facebook/LinkedIn)</label><input id="fVideoLink" placeholder="https://..."></div>
+      </div>
+
+      <div class="card">
+        <h2><i class="fas fa-image"></i> फोटो (ऐच्छिक)</h2>
+        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+          <i class="fas fa-cloud-arrow-up" style="font-size:1.5rem;color:var(--k)"></i>
+          <p style="font-size:.82rem;margin-top:.4rem;color:#8a6a50">पासपोर्ट फोटो किंवा प्रकल्पाचे छायाचित्र (कमाल 5MB)</p>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none">
+        <div id="fileChipWrap"></div>
+      </div>
+
+      <div class="card disclaimer">
+        <label><input type="checkbox" id="d1" required> हे साहित्य माझे स्वतःचे, पूर्णपणे स्वलिखित आहे.</label>
+        <label><input type="checkbox" id="d2" required> यामध्ये कोणत्याही व्यक्ती/संस्था/समाजाविषयी आक्षेपार्ह, असत्य किंवा दिशाभूल करणारा मजकूर नाही, आणि चुकीचे आढळल्यास ते काढून टाकले जाऊ शकते हे मला मान्य आहे.</label>
+      </div>
+
+      <button class="btn" type="submit" id="submitBtn" disabled><i class="fas fa-paper-plane"></i> सादर करा (आधी Google साइन इन करा)</button>
+      <div class="msg" id="formMsg"></div>
+    </form>
+  </div>
+</div>
+
+<!-- Post detail modal -->
+<div class="modal" id="postModal" onclick="if(event.target===this) closeModal()">
+  <div class="modal-inner">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div class="post-cat" id="mCat"></div>
+    <h2 id="mTitle" style="font-family:'Baloo 2',sans-serif;color:var(--rd);margin-top:.4rem"></h2>
+    <div class="post-meta" id="mMeta"></div>
+    <img class="modal-img" id="mImg" style="display:none">
+    <div class="modal-body" id="mBody"></div>
+    <div class="react-bar" id="reactBar">
+      <button class="react-btn" id="likeBtn" onclick="react('like')"><i class="fas fa-thumbs-up"></i> <span id="likeCount">0</span></button>
+      <button class="react-btn" id="dislikeBtn" onclick="react('dislike')"><i class="fas fa-thumbs-down"></i> <span id="dislikeCount">0</span></button>
+      <span id="reactHint" style="font-size:.78rem;color:#8a6a50">प्रतिक्रिया देण्यासाठी Google साइन इन करा</span>
+      <div class="react-note" id="reactNoteWrap" style="display:none">
+        <textarea id="reactNote" placeholder="सूचना/अभिप्राय (ऐच्छिक)..."></textarea>
+        <button class="btn" style="margin-top:.5rem" onclick="submitNote()">सूचना पाठवा</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDD5o-yg5LDfvNuG8eyNh-WdH-GCSCRmYY",
+  authDomain: "vidyarthi---manch.firebaseapp.com",
+  projectId: "vidyarthi---manch",
+  storageBucket: "vidyarthi---manch.firebasestorage.app",
+  messagingSenderId: "455378425843",
+  appId: "1:455378425843:web:1e2b594c03d966d7e92486"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const CLOUDINARY_CLOUD_NAME = 'gbsglqfq';
+const CLOUDINARY_UPLOAD_PRESET = 'vidyarthi_manch';
+
+async function uploadToCloudinary(file){
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, { method:'POST', body:fd });
+  const out = await res.json();
+  if(!out.secure_url) throw new Error(out.error?.message || 'Cloudinary upload अयशस्वी');
+  return out.secure_url;
+}
+
+let currentUser = null;
+function doGoogleSignIn(){
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err=>alert('साइन इन अयशस्वी: '+err.message));
+}
+auth.onAuthStateChanged(user=>{
+  if(user){
+    currentUser = user;
+    document.getElementById('fEmail').value = user.email;
+    document.getElementById('fEmail').classList.add('locked');
+    if(!document.getElementById('fName').value) document.getElementById('fName').value = user.displayName || '';
+    document.getElementById('gsiPic').src = user.photoURL || '';
+    document.getElementById('gsiText').textContent = '✅ पडताळणी यशस्वी: ' + user.email;
+    document.getElementById('gsiVerified').style.display = 'flex';
+    document.getElementById('gBtn').style.display = 'none';
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-paper-plane"></i> सादर करा';
+    document.getElementById('reactHint').style.display = 'none';
+    document.getElementById('reactNoteWrap').style.display = 'block';
+    if(currentOpenPost) refreshReactionUI(currentOpenPost);
+  }
+});
+
+function showTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  event.target.closest('.tab-btn').classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function onCategoryChange(){
+  const cat = document.getElementById('fCategory').value;
+  document.getElementById('techFields').style.display = (cat === 'तांत्रिक प्रकल्प') ? 'block' : 'none';
+  document.getElementById('fContentWrap').style.display = (cat === 'तांत्रिक प्रकल्प') ? 'none' : 'block';
+  document.getElementById('fContent').required = (cat !== 'तांत्रिक प्रकल्प');
+}
+
+let attachedFile = null;
+document.getElementById('fileInput').addEventListener('change', e=>{
+  const f = e.target.files[0];
+  if(!f) return;
+  if(f.size > 5*1024*1024){ alert('5MB पेक्षा मोठी फाईल स्वीकारली जाणार नाही'); return; }
+  attachedFile = f;
+  document.getElementById('fileChipWrap').innerHTML = `<span class="file-chip">${f.name} <i class="fas fa-times" onclick="attachedFile=null;document.getElementById('fileChipWrap').innerHTML=''"></i></span>`;
+});
+
+document.getElementById('namaForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  if(!currentUser){ alert('कृपया आधी Google खात्याने साइन इन करा.'); return; }
+  const btn = document.getElementById('submitBtn');
+  const msg = document.getElementById('formMsg');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> पाठवत आहे...';
+  msg.className = 'msg';
+  try{
+    const category = document.getElementById('fCategory').value;
+    const data = {
+      authorType: 'student',
+      status: 'pending',
+      category,
+      title: document.getElementById('fTitle').value,
+      content: document.getElementById('fContent').value || '',
+      studentName: document.getElementById('fName').value,
+      studentEmail: currentUser.email,
+      studentClass: document.getElementById('fClass').value,
+      studentSchool: document.getElementById('fSchool').value,
+      studentContact: document.getElementById('fContact').value,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    if(category === 'तांत्रिक प्रकल्प'){
+      data.techPurpose = document.getElementById('fPurpose').value;
+      data.techIntro = document.getElementById('fIntro').value;
+      data.techFeatures = document.getElementById('fFeatures').value;
+      data.techTech = document.getElementById('fTech').value;
+      data.techConclusion = document.getElementById('fConclusion').value;
+      data.videoLink = document.getElementById('fVideoLink').value;
+    }
+    const docRef = await db.collection('nama_posts').add(data);
+    if(attachedFile){
+      const url = await uploadToCloudinary(attachedFile);
+      await docRef.update({ imageUrl: url });
+    }
+    msg.textContent = '✅ धन्यवाद! तुमचे साहित्य सादर झाले आहे (Reference ID: ' + docRef.id + '). प्रशासकीय पडताळणीनंतर ते प्रकाशित होईल.';
+    msg.className = 'msg ok';
+    e.target.reset();
+    document.getElementById('fEmail').value = currentUser.email;
+    document.getElementById('fEmail').classList.add('locked');
+    document.getElementById('fName').value = currentUser.displayName || '';
+    attachedFile = null; document.getElementById('fileChipWrap').innerHTML = '';
+    document.getElementById('techFields').style.display = 'none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(err){
+    msg.textContent = '❌ त्रुटी: ' + err.message;
+    msg.className = 'msg err';
+  }
+  btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> सादर करा';
+});
+
+/* ---------- Feed ---------- */
+let allPosts = [];
+let activeCat = '';
+async function loadFeed(){
+  const el = document.getElementById('feedResults');
+  try{
+    const snap = await db.collection('nama_posts').where('status','==','approved').get();
+    allPosts = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    allPosts.sort((a,b)=> (b.timestamp?.seconds||0) - (a.timestamp?.seconds||0));
+    renderFeed();
+  }catch(err){
+    el.innerHTML = '<div class="empty">डेटा लोड करता आला नाही.</div>';
+  }
+}
+function renderFeed(){
+  const el = document.getElementById('feedResults');
+  const items = activeCat ? allPosts.filter(p=>p.category===activeCat) : allPosts;
+  if(!items.length){ el.innerHTML = '<div class="empty">या श्रेणीत अजून काही प्रकाशित नाही.</div>'; return; }
+  el.innerHTML = items.map(p=>`
+    <div class="post-card ${p.authorType==='admin'?'admin':''}" onclick="openPost('${p.id}')">
+      <div class="post-cat">${esc(p.category)}</div>
+      <div class="post-title">${esc(p.title)}</div>
+      <div class="post-meta">${p.authorType==='admin' ? '✍️ ' + esc(p.guidanceAuthor||'मार्गदर्शक') : '👤 ' + esc(p.studentName) + (p.studentSchool?' | '+esc(p.studentSchool):'')}</div>
+      <div class="post-excerpt">${esc((p.content||p.techIntro||'').slice(0,140))}${(p.content||p.techIntro||'').length>140?'...':''}</div>
+    </div>
+  `).join('');
+}
+document.querySelectorAll('.cat-chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    activeCat = chip.dataset.cat;
+    renderFeed();
+  });
+});
+
+/* ---------- Post detail + reactions ---------- */
+let currentOpenPost = null;
+async function openPost(id){
+  const p = allPosts.find(x=>x.id===id);
+  if(!p) return;
+  currentOpenPost = p;
+  document.getElementById('mCat').textContent = p.category;
+  document.getElementById('mTitle').textContent = p.title;
+  document.getElementById('mMeta').textContent = p.authorType==='admin' ? ('✍️ ' + (p.guidanceAuthor||'मार्गदर्शक')) : ('👤 ' + p.studentName + (p.studentSchool?' | '+p.studentSchool:'') + (p.studentClass?' | '+p.studentClass:''));
+  const img = document.getElementById('mImg');
+  if(p.imageUrl){ img.src = p.imageUrl; img.style.display='block'; } else { img.style.display='none'; }
+  let body = p.content || '';
+  if(p.category === 'तांत्रिक प्रकल्प'){
+    body = `उद्देश: ${p.techPurpose||''}\n\nप्रास्ताविक: ${p.techIntro||''}\n\nवैशिष्ट्ये: ${p.techFeatures||''}\n\nतंत्रज्ञान: ${p.techTech||''}\n\nनिष्कर्ष: ${p.techConclusion||''}` + (p.videoLink?`\n\nव्हिडिओ: ${p.videoLink}`:'');
+  }
+  document.getElementById('mBody').textContent = body;
+  document.getElementById('postModal').classList.add('open');
+  await refreshReactionUI(p);
+}
+function closeModal(){ document.getElementById('postModal').classList.remove('open'); currentOpenPost=null; }
+
+async function refreshReactionUI(p){
+  const snap = await db.collection('nama_reactions').where('postId','==',p.id).get();
+  const reactions = snap.docs.map(d=>d.data());
+  document.getElementById('likeCount').textContent = reactions.filter(r=>r.type==='like').length;
+  document.getElementById('dislikeCount').textContent = reactions.filter(r=>r.type==='dislike').length;
+  document.getElementById('likeBtn').classList.remove('liked');
+  document.getElementById('dislikeBtn').classList.remove('disliked');
+  if(currentUser){
+    const mine = reactions.find(r=>r.uid===currentUser.uid);
+    if(mine){
+      if(mine.type==='like') document.getElementById('likeBtn').classList.add('liked');
+      if(mine.type==='dislike') document.getElementById('dislikeBtn').classList.add('disliked');
+      document.getElementById('reactNote').value = mine.suggestion || '';
+    } else {
+      document.getElementById('reactNote').value = '';
+    }
+  }
+}
+async function react(type){
+  if(!currentUser){ alert('प्रतिक्रिया देण्यासाठी आधी Google खात्याने साइन इन करा (साहित्य सादर करा टॅबमधून).'); return; }
+  const docId = currentOpenPost.id + '_' + currentUser.uid;
+  await db.collection('nama_reactions').doc(docId).set({
+    postId: currentOpenPost.id, uid: currentUser.uid, email: currentUser.email, type,
+    suggestion: document.getElementById('reactNote').value || '',
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge:true });
+  await refreshReactionUI(currentOpenPost);
+}
+async function submitNote(){
+  if(!currentUser){ alert('आधी Google खात्याने साइन इन करा.'); return; }
+  const docId = currentOpenPost.id + '_' + currentUser.uid;
+  await db.collection('nama_reactions').doc(docId).set({
+    postId: currentOpenPost.id, uid: currentUser.uid, email: currentUser.email,
+    suggestion: document.getElementById('reactNote').value || '',
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge:true });
+  alert('सूचना पाठवली गेली, धन्यवाद!');
+}
+function esc(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+loadFeed();
+</script>
+</body>
+</html>
