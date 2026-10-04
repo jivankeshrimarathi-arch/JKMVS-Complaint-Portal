@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /vidyarthi-nama-admin.html
-Sitemap: https://YOUR-DOMAIN.in/sitemap.xml
