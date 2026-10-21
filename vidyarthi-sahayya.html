@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>विद्यार्थीनामा सहाय्य — गरजू विद्यार्थी शैक्षणिक सहाय्य अभियान</title>
+<meta name="description" content="गरजू विद्यार्थ्यांची शैक्षणिक गरज संभाव्य मदतदात्यांपर्यंत पोहोचवणारा जीवन केशरी मराठी विद्यार्थी समूहाचा उपक्रम.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#9B1C1C">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<style>
+:root{--k:#E8650A;--r:#9B1C1C;--rd:#7F1D1D;--rp:#5C0A0A;--g:#F59E0B;--cr:#FFF8F0;--ok:#1E8E3E;--ln:#E8CBB0;--sk:rgba(232,101,10,.28)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Mukta',sans-serif;background:var(--cr);color:#1A0A00;line-height:1.6;font-size:16px}
+header{background:linear-gradient(135deg,var(--rp),var(--r));border-bottom:3px solid var(--k);color:#fff;padding:.8rem 1rem}
+header div{max-width:760px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+header a{color:#FFE4C4;text-decoration:none;font-weight:600;font-size:.9rem}
+header b{font-family:'Baloo 2',sans-serif;font-size:1.05rem}
+main{max-width:760px;margin:0 auto;padding:1.2rem 1rem 4rem}
+h1{font-family:'Baloo 2',sans-serif;font-size:1.7rem;color:var(--rd);line-height:1.25;margin:.4rem 0 .5rem}
+.lead{color:#5a3a20;margin-bottom:1rem}
+.notice{border-left:5px solid var(--k);background:#fff;padding:.9rem 1rem;border-radius:0 10px 10px 0;margin-bottom:1.2rem;font-size:.94rem}
+.notice p+p{margin-top:.4rem}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap;background:#fff;border:1px solid var(--ln);border-radius:10px;padding:.7rem 1rem;margin-bottom:1rem;font-size:.9rem}
+button{font-family:inherit;cursor:pointer}
+.btn{background:var(--k);color:#fff;border:0;border-radius:9px;padding:.7rem 1.3rem;font-weight:700;font-size:1rem}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.ghost{background:#fff;color:var(--r);border:1.5px solid var(--r);padding:.45rem .9rem;font-size:.88rem}
+.tabs{display:flex;gap:.5rem;margin-bottom:1rem}
+.tabs button{flex:1;padding:.7rem;border:2px solid var(--k);background:#fff;color:var(--r);border-radius:10px;font-weight:700;font-size:.95rem}
+.tabs button.on{background:var(--k);color:#fff}
+.panel{display:none}.panel.on{display:block}
+fieldset{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:1rem 1rem .4rem;margin-bottom:1rem}
+legend{font-family:'Baloo 2',sans-serif;color:var(--r);font-size:1.02rem;padding:0 .4rem}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 .9rem}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+.f{margin-bottom:.85rem}
+.f label{display:block;font-size:.85rem;font-weight:700;color:var(--rd);margin-bottom:.25rem}
+.f small{display:block;color:#7a5a40;font-size:.78rem;margin-top:.2rem}
+input,select,textarea{width:100%;padding:.62rem .75rem;border:1.5px solid var(--ln);border-radius:8px;font:inherit;font-size:.95rem;background:#FFFDF9}
+textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid var(--sk);border-color:var(--k)}
+.req{color:var(--r)}
+.chk{display:flex;gap:.6rem;align-items:flex-start;margin-bottom:.8rem;font-size:.92rem}
+.chk input{width:auto;margin-top:.35rem;accent-color:var(--r)}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chips label{display:flex;align-items:center;gap:.4rem;border:1.5px solid var(--ln);background:#FFFDF9;border-radius:20px;padding:.35rem .8rem;font-size:.88rem;font-weight:600;margin:0;color:#3a1c0a}
+.chips input{width:auto;accent-color:var(--r)}
+.hide{display:none}
+.msg{margin-top:.9rem;padding:.8rem 1rem;border-radius:9px;font-size:.93rem;display:none}
+.msg.ok{display:block;background:#E6F6EA;border:1px solid #9BD3A9;color:#14532d}
+.msg.er{display:block;background:#FDECEC;border:1px solid #E7A3A3;color:var(--rd)}
+.app{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:1.1rem;margin-bottom:1rem}
+.app h3{font-family:'Baloo 2',sans-serif;color:var(--rd);font-size:1.1rem}
+.app .meta{color:#5a3a20;font-size:.88rem;margin-bottom:.8rem}
+.path{list-style:none;position:relative;margin-left:.3rem}
+.path li{position:relative;padding:0 0 .9rem 2rem;font-size:.9rem;color:#8a6a50}
+.path li:last-child{padding-bottom:0}
+.path li::before{content:'';position:absolute;left:.55rem;top:1.3rem;bottom:-.1rem;width:2px;background:var(--ln)}
+.path li:last-child::before{display:none}
+.path li i{position:absolute;left:0;top:.2rem;width:1.15rem;height:1.15rem;border-radius:50%;border:2px solid var(--ln);background:#fff}
+.path li.done{color:#3a1c0a}
+.path li.done i{background:var(--ok);border-color:var(--ok)}
+.path li.done::before{background:var(--ok)}
+.path li.now{color:var(--rd);font-weight:700}
+.path li.now i{background:var(--k);border-color:var(--k);box-shadow:0 0 0 4px var(--sk)}
+.path li span{display:block;font-weight:500;font-size:.82rem;color:#7a5a40}
+.info{background:#FFF4DC;border:1px solid var(--g);border-radius:9px;padding:.7rem .9rem;margin-bottom:.8rem;font-size:.9rem}
+.empty{text-align:center;color:#7a5a40;padding:2rem 1rem;background:#fff;border:1px dashed var(--ln);border-radius:12px}
+@media(prefers-reduced-motion:no-preference){.path li.now i{animation:p 2s ease-in-out infinite}@keyframes p{50%{box-shadow:0 0 0 7px rgba(232,101,10,.12)}}}
+</style>
+</head>
+<body>
+<header><div><b>विद्यार्थीनामा सहाय्य</b><a href="index.html">मुख्य संकेतस्थळ</a></div></header>
+<main>
+<h1>गरजू विद्यार्थी शैक्षणिक सहाय्य अभियान</h1>
+<p class="lead">तुमच्या शैक्षणिक गरजेची पडताळणी करून ती संभाव्य मदतदात्यांपर्यंत पोहोचवण्याचा हा जीवन केशरी मराठी विद्यार्थी समूहाचा उपक्रम आहे.</p>
+
+<div class="notice">
+<p><b>कृपया वाचा:</b> येथे अर्ज केल्याने मदत मिळण्याची १००% हमी दिली जात नाही. विद्यार्थीनामा फक्त गरज मदतदात्यांपर्यंत पोहोचवण्याचा दुवा आहे; मदत उपलब्ध साधने, पडताळणी आणि मदतदात्यांच्या निर्णयावर अवलंबून आहे.</p>
+<p><b>कोणताही आर्थिक व्यवहार नाही:</b> या पोर्टलवर पैसे मागितले, स्वीकारले किंवा पाठवले जात नाहीत. फक्त वस्तुरूप मदत (पाठ्यपुस्तके, शैक्षणिक साहित्य) दिली जाते. पैशांची मागणी करणारा कोणीही आढळल्यास आम्हाला कळवा.</p>
+</div>
+
+<div class="bar" id="bar"></div>
+
+<div class="tabs"><button class="on" data-t="new">नवीन अर्ज</button><button data-t="mine">माझ्या अर्जाची स्थिती</button></div>
+
+<section class="panel on" id="p-new">
+<div class="empty" id="needLogin">अर्ज करण्यासाठी आधी वरील बटणाने Google खात्याने साइन इन करा.</div>
+<form id="form" class="hide" novalidate>
+<fieldset><legend>अर्ज कोण भरत आहे?</legend>
+<div class="row">
+<div class="f"><label>तुम्ही कोण? <span class="req">*</span></label>
+<select id="role" required><option value="">निवडा</option><option value="parent">पालक</option><option value="student">स्वतः विद्यार्थी</option><option value="teacher">शालेय शिक्षक</option></select></div>
+<div class="f"><label>तुमचे पूर्ण नाव <span class="req">*</span></label><input id="aName" required></div>
+<div class="f"><label>तुमचा मोबाईल क्रमांक <span class="req">*</span></label><input id="aMobile" inputmode="numeric" maxlength="10" pattern="[6-9][0-9]{9}" required></div>
+<div class="f hide" id="tDesig"><label>शिक्षकाचे पद <span class="req">*</span></label><input id="aDesig"></div>
+</div>
+</fieldset>
+
+<fieldset><legend>विद्यार्थ्याची माहिती</legend>
+<div class="row">
+<div class="f"><label>विद्यार्थ्याचे पूर्ण नाव <span class="req">*</span></label><input id="sName" required></div>
+<div class="f"><label>जन्मतारीख <span class="req">*</span></label><input id="dob" type="date" required></div>
+<div class="f"><label>शैक्षणिक वर्ष <span class="req">*</span></label><select id="ay" required><option>२०२६–२७</option><option>२०२७–२८</option></select></div>
+<div class="f"><label>इयत्ता / अभ्यासक्रम <span class="req">*</span></label><input id="cls" required></div>
+</div>
+<div class="f"><label>शैक्षणिक कारकीर्द (मागील वर्षाचा निकाल, विशेष कामगिरी) <span class="req">*</span></label><textarea id="acad" required></textarea></div>
+<div class="f"><label>विद्यार्थ्याची ध्येये / भविष्यातील योजना</label><textarea id="goals"></textarea></div>
+</fieldset>
+
+<fieldset><legend>शाळेची माहिती (सर्व आवश्यक)</legend>
+<div class="row">
+<div class="f"><label>शाळेचे पूर्ण नाव <span class="req">*</span></label><input id="school" required></div>
+<div class="f"><label>UDISE क्रमांक <span class="req" id="udReq" style="display:none">*</span></label><input id="udise" inputmode="numeric" maxlength="11"><small>शिक्षकांसाठी आवश्यक; इतरांसाठी असल्यास भरा.</small></div>
+<div class="f"><label>जिल्हा <span class="req">*</span></label><input id="district" value="नाशिक" required></div>
+<div class="f"><label>मुख्याध्यापक / शाळा कार्यालयाचा संपर्क <span class="req">*</span></label><input id="sContact" required></div>
+</div>
+<div class="f"><label>शाळेचा पूर्ण पत्ता <span class="req">*</span></label><textarea id="sAddr" required style="min-height:70px"></textarea></div>
+</fieldset>
+
+<fieldset><legend>आवश्यक मदत (वस्तुरूप)</legend>
+<div class="f chips" id="helps">
+<label><input type="checkbox" value="पाठ्यपुस्तके"> पाठ्यपुस्तके</label>
+<label><input type="checkbox" value="वह्या व शैक्षणिक साहित्य"> वह्या व शैक्षणिक साहित्य</label>
+<label><input type="checkbox" value="डिजिटल साधने"> डिजिटल साधने</label>
+<label><input type="checkbox" value="इतर वस्तू"> इतर वस्तू</label>
+</div>
+<div class="f"><label>नेमके काय हवे आणि का? <span class="req">*</span></label><textarea id="need" required></textarea><small>पैशांची रक्कम लिहू नका. कोणती पुस्तके/साहित्य हवे ते लिहा.</small></div>
+</fieldset>
+
+<fieldset><legend>फोटो व ओळखपत्र (आवश्यक)</legend>
+<div class="row">
+<div class="f"><label>विद्यार्थ्याचा पासपोर्ट साइज फोटो <span class="req">*</span></label><input id="photo" type="file" accept="image/*" required></div>
+<div class="f"><label>शाळेचे विद्यमान ओळखपत्र <span class="req">*</span></label><input id="idcard" type="file" accept="image/*" required><small>ओळखपत्राचा स्पष्ट फोटो. हे फक्त पडताळणी पथकाला दिसेल.</small></div>
+</div>
+</fieldset>
+
+<fieldset><legend>संमती</legend>
+<label class="chk"><input type="checkbox" id="c1" required><span>भरलेली सर्व माहिती खरी आहे. विद्यार्थी १८ वर्षांखालील असल्यास त्याच्या पालकांची या अर्जाला व माहितीच्या वापराला संमती आहे. <span class="req">*</span></span></label>
+<label class="chk"><input type="checkbox" id="c2" required><span>पडताळणीनंतर विद्यार्थ्याची ओळख उघड न करता गरज संभाव्य मदतदात्यांना दाखवण्यास संमती आहे. मदतदात्याशी संपर्क फक्त विद्यार्थीनामा समन्वयक, पालक किंवा शाळा यांच्यामार्फत होईल. <span class="req">*</span></span></label>
+<label class="chk"><input type="checkbox" id="c3" required><span>या पोर्टलवर कोणताही आर्थिक व्यवहार होत नाही व मदतीची हमी नाही, हे मला मान्य आहे. <span class="req">*</span></span></label>
+</fieldset>
+
+<button class="btn" id="go" type="submit">अर्ज सादर करा</button>
+<div class="msg" id="msg" role="status"></div>
+</form>
+</section>
+
+<section class="panel" id="p-mine"><div id="mine"></div></section>
+</main>
+
+<script>
+const firebaseConfig={apiKey:"AIzaSyDD5o-yg5LDfvNuG8eyNh-WdH-GCSCRmYY",authDomain:"vidyarthi---manch.firebaseapp.com",projectId:"vidyarthi---manch",storageBucket:"vidyarthi---manch.firebasestorage.app",messagingSenderId:"455378425843",appId:"1:455378425843:web:1e2b594c03d966d7e92486"};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth(),db=firebase.firestore(),st=firebase.storage();
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const STEPS=[
+['Received','अर्ज प्राप्त झाला'],
+['Under Review','अर्जाची छाननी सुरू आहे'],
+['Verified','आवश्यक पडताळणी पूर्ण झाली. (याचा अर्थ मदत मंजूर झाली असा नाही.)'],
+['Shared with Potential Donors','गरज संभाव्य मदतदात्यांपर्यंत पोहोचवली'],
+['Assistance Confirmed','मदतीची पुष्टी झाली'],
+['Assistance Provided','मदत प्रत्यक्ष मिळाल्याची पुष्टी झाली'],
+['Closed','अर्ज प्रक्रिया बंद झाली']];
+let user=null;
+
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.t));
+});
+
+auth.onAuthStateChanged(u=>{
+  user=u;
+  $('bar').innerHTML=u?`<span>साइन इन: <b>${esc(u.email)}</b></span><button class="btn ghost" id="out">बाहेर पडा</button>`
+    :`<span>सुरू करण्यासाठी साइन इन करा</span><button class="btn" id="in">Google ने साइन इन करा</button>`;
+  if(u){$('out').onclick=()=>auth.signOut();$('form').classList.remove('hide');$('needLogin').classList.add('hide');loadMine();}
+  else{$('in').onclick=()=>auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>alert('साइन इन अयशस्वी: '+e.message));
+    $('form').classList.add('hide');$('needLogin').classList.remove('hide');$('mine').innerHTML='<div class="empty">अर्जाची स्थिती पाहण्यासाठी साइन इन करा.</div>';}
+});
+
+$('role').onchange=()=>{const t=$('role').value==='teacher';
+  $('tDesig').classList.toggle('hide',!t);$('aDesig').required=t;$('udise').required=t;$('udReq').style.display=t?'inline':'none';};
+
+function shrink(f){return new Promise((ok,no)=>{const i=new Image();
+  i.onload=()=>{const s=Math.min(1,1200/Math.max(i.width,i.height)),c=document.createElement('canvas');
+    c.width=Math.round(i.width*s);c.height=Math.round(i.height*s);c.getContext('2d').drawImage(i,0,0,c.width,c.height);
+    c.toBlob(b=>b?ok(b):no(new Error('फोटो वाचता आला नाही')),'image/jpeg',.82);URL.revokeObjectURL(i.src)};
+  i.onerror=()=>no(new Error('फोटो वाचता आला नाही. JPG/PNG फोटो निवडा.'));i.src=URL.createObjectURL(f);});}
+
+function nextId(year){
+  const ref=db.collection('counters').doc('vsa-'+year);
+  return db.runTransaction(async t=>{const s=await t.get(ref),n=(s.exists?s.data().n:0)+1;
+    t.set(ref,{n});return 'VSA-'+year+'-'+String(n).padStart(4,'0');});
+}
+const age=d=>{const b=new Date(d),n=new Date();let a=n.getFullYear()-b.getFullYear();
+  if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate()))a--;return a;};
+function say(t,c){const m=$('msg');m.textContent=t;m.className='msg '+c;m.scrollIntoView({block:'center'});}
+
+$('form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(!user)return;
+  if(!$('form').checkValidity()){$('form').reportValidity();return;}
+  const helps=[...document.querySelectorAll('#helps input:checked')].map(x=>x.value);
+  if(!helps.length){say('कृपया किमान एक प्रकारची मदत निवडा.','er');return;}
+  if(age($('dob').value)>25||age($('dob').value)<3){say('जन्मतारीख तपासा.','er');return;}
+  const btn=$('go');btn.disabled=true;btn.textContent='पाठवत आहे… कृपया पान बंद करू नका';$('msg').className='msg';
+  try{
+    const id=await nextId(new Date().getFullYear());
+    const base='vsa/'+user.uid+'/'+id+'/';
+    const put=async(file,name)=>{const b=await shrink(file);const r=st.ref(base+name);
+      await r.put(b,{contentType:'image/jpeg'});return r.fullPath;};
+    const photoPath=await put($('photo').files[0],'photo.jpg');
+    const idCardPath=await put($('idcard').files[0],'idcard.jpg');
+    const now=firebase.firestore.Timestamp.now();
+    await db.collection('applications').doc(id).set({
+      ownerUid:user.uid,ownerEmail:user.email,
+      applicantRole:$('role').value,applicantName:$('aName').value.trim(),applicantMobile:$('aMobile').value.trim(),
+      applicantDesignation:$('aDesig').value.trim(),
+      studentName:$('sName').value.trim(),dob:$('dob').value,minor:age($('dob').value)<18,
+      academicYear:$('ay').value,classCourse:$('cls').value.trim(),academicRecord:$('acad').value.trim(),goals:$('goals').value.trim(),
+      schoolName:$('school').value.trim(),udise:$('udise').value.trim(),district:$('district').value.trim(),
+      schoolContact:$('sContact').value.trim(),schoolAddress:$('sAddr').value.trim(),
+      helpTypes:helps,need:$('need').value.trim(),
+      photoPath,idCardPath,
+      consentTruth:true,consentDonorView:true,noMoneyAck:true,
+      status:'Received',statusHistory:[{s:'Received',at:now}],
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    $('form').reset();$('tDesig').classList.add('hide');
+    say('तुमचा अर्ज प्राप्त झाला. Application ID: '+id+' — हा क्रमांक जपून ठेवा. “माझ्या अर्जाची स्थिती” टॅबमध्ये प्रगती पाहता येईल.','ok');
+    loadMine();
+  }catch(err){
+    say('अर्ज पाठवता आला नाही: '+(err.code==='storage/unauthorized'?'फोटो अपलोडला परवानगी नाही (Storage नियम तपासा).':err.message),'er');
+  }
+  btn.disabled=false;btn.textContent='अर्ज सादर करा';
+});
+
+async function loadMine(){
+  const box=$('mine');box.innerHTML='<div class="empty">लोड होत आहे…</div>';
+  try{
+    const s=await db.collection('applications').where('ownerUid','==',user.uid).get();
+    if(s.empty){box.innerHTML='<div class="empty">या खात्यावरून अजून अर्ज केलेला नाही.</div>';return;}
+    const docs=s.docs.sort((a,b)=>(b.data().createdAt?.seconds||0)-(a.data().createdAt?.seconds||0));
+    box.innerHTML=docs.map(d=>{const a=d.data();
+      const cur=Math.max(0,STEPS.findIndex(x=>x[0]===a.status));
+      const hist={};(a.statusHistory||[]).forEach(h=>hist[h.s]=h.at?.toDate?h.at.toDate().toLocaleDateString('mr-IN'):'');
+      return `<div class="app"><h3>${esc(d.id)}</h3>
+      <div class="meta">${esc(a.studentName)} · ${esc(a.classCourse)} · ${esc(a.academicYear)}</div>
+      ${a.status==='Information Required'?`<div class="info"><b>अतिरिक्त माहिती आवश्यक आहे.</b> ${esc(a.infoRequest||'कृपया समन्वयकांशी संपर्क साधा.')}</div>`:''}
+      <ul class="path">${STEPS.map((x,i)=>`<li class="${i<cur?'done':i===cur?'now':''}"><i></i>${esc(x[0])}<span>${esc(x[1])}${hist[x[0]]?' · '+esc(hist[x[0]]):''}</span></li>`).join('')}</ul></div>`;}).join('');
+  }catch(err){box.innerHTML='<div class="empty">स्थिती लोड करता आली नाही: '+esc(err.message)+'</div>';}
+}
+</script>
+</body>
+</html>
