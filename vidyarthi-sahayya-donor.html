@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>मदतदाता / CSR — विद्यार्थीनामा सहाय्य</title>
+<link rel="icon" href="jkmvs-logo.png">
+<meta name="theme-color" content="#9B1C1C">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--k:#E8650A;--r:#9B1C1C;--rd:#7F1D1D;--rp:#5C0A0A;--g:#F59E0B;--cr:#FFF8F0;--ln:#E8CBB0;--sk:rgba(232,101,10,.28)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Mukta',sans-serif;background:var(--cr);color:#1A0A00;line-height:1.6;font-size:16px}
+header{background:linear-gradient(135deg,var(--rp),var(--r));border-bottom:3px solid var(--k);color:#fff;padding:.7rem 1rem}
+header div{max-width:760px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:.8rem}
+header b{display:flex;align-items:center;gap:.6rem;font-family:'Baloo 2',sans-serif}
+header img{width:40px;height:40px;border-radius:50%;border:2px solid #FFE4C4;background:#fff}
+header a{color:#FFE4C4;text-decoration:none;font-size:.88rem;font-weight:600}
+main{max-width:760px;margin:0 auto;padding:1.1rem 1rem 4rem}
+h1{font-family:'Baloo 2',sans-serif;font-size:1.6rem;color:var(--rd);line-height:1.25;margin-bottom:.4rem}
+.hide{display:none}
+button{font-family:inherit;cursor:pointer}
+.btn{background:var(--k);color:#fff;border:0;border-radius:9px;padding:.65rem 1.2rem;font-weight:700;font-size:.95rem}
+.btn.g{background:#fff;color:var(--r);border:1.5px solid var(--r);padding:.4rem .8rem;font-size:.85rem}
+.btn:disabled{opacity:.55}
+.notice{border-left:5px solid var(--k);background:#fff;padding:.8rem 1rem;border-radius:0 10px 10px 0;margin:.8rem 0 1rem;font-size:.93rem}
+.box{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:1rem;margin-bottom:.9rem}
+input,select,textarea{width:100%;padding:.6rem .7rem;border:1.5px solid var(--ln);border-radius:8px;font:inherit;background:#FFFDF9}
+textarea{min-height:80px}
+input:focus,select:focus,textarea:focus{outline:3px solid var(--sk);border-color:var(--k)}
+label{display:block;font-size:.84rem;font-weight:700;color:var(--rd);margin:.7rem 0 .25rem}
+.chk{display:flex;gap:.6rem;align-items:flex-start;font-size:.9rem;font-weight:500;color:#1A0A00;margin:.7rem 0}
+.chk input{width:auto;margin-top:.4rem;accent-color:var(--r)}
+.msg{margin-top:.7rem;padding:.7rem .9rem;border-radius:9px;font-size:.9rem;display:none}
+.msg.ok{display:block;background:#E6F6EA;border:1px solid #9BD3A9;color:#14532d}
+.msg.er{display:block;background:#FDECEC;border:1px solid #E7A3A3;color:var(--rd)}
+.rowb{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem}.rowb .btn{flex:1;min-width:130px}
+.or{text-align:center;color:#7a5a40;font-size:.85rem;margin:.7rem 0}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:.88rem;margin-bottom:.8rem}
+.tabs{display:flex;gap:.5rem;margin-bottom:.9rem}
+.tabs button{flex:1;padding:.65rem;border:2px solid var(--k);background:#fff;color:var(--r);border-radius:10px;font-weight:700}
+.tabs button.on{background:var(--k);color:#fff}
+.pill{font-size:.75rem;font-weight:700;border-radius:20px;padding:.2rem .65rem;background:#E6F6EA;color:#14532d}
+.ph{width:90px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--ln);background:#eee;float:right;margin:0 0 .5rem .8rem}
+dl{display:grid;grid-template-columns:110px 1fr;gap:.3rem .7rem;font-size:.9rem;clear:both}dt{font-weight:700;color:var(--rd)}dd{word-break:break-word}
+</style>
+</head>
+<body>
+<header><div><b><img src="jkmvs-logo.png" alt="">मदतदाता / CSR</b><a href="vidyarthi-sahayya.html">विद्यार्थी अर्ज</a></div></header>
+<main>
+<h1>विद्यार्थ्यांना वस्तुरूप मदत करा</h1>
+<div class="notice"><b>नियम:</b> येथे कोणताही आर्थिक व्यवहार होत नाही. फक्त पुस्तके व शैक्षणिक साहित्य. विद्यार्थ्याची माहिती तुम्ही जबाबदारी स्वीकारल्यावरच व विद्यार्थीनामाच्या मंजुरीनंतरच दिसते आणि ती गोपनीय ठेवणे बंधनकारक आहे.</div>
+<div class="bar" id="bar"></div>
+
+<div class="box hide" id="login">
+<button class="btn" id="gIn" style="width:100%">Google ने साइन इन करा</button>
+<p class="or">किंवा ईमेल व पासवर्डने</p>
+<label for="le">ईमेल</label><input id="le" type="email" autocomplete="email">
+<label for="lp">पासवर्ड (किमान ६ अक्षरे)</label><input id="lp" type="password" autocomplete="current-password">
+<div class="rowb"><button class="btn" id="eIn">साइन इन</button><button class="btn g" id="eUp">नवीन खाते</button><button class="btn g" id="eRs">पासवर्ड विसरलात?</button></div>
+<div class="msg" id="lm"></div>
+</div>
+
+<div class="box hide" id="verify"><b>ईमेल पडताळणी बाकी आहे.</b> ईमेलवरील दुव्यावर क्लिक करा (Spam पाहा), मग खालील बटण दाबा.
+<div class="rowb"><button class="btn" id="vDone">मी पडताळणी केली</button><button class="btn g" id="vRe">मेल पुन्हा पाठवा</button></div><div class="msg" id="vm"></div></div>
+
+<form class="box hide" id="reg">
+<b>मदतदाता नोंदणी</b>
+<label>प्रकार *</label><select id="type" required><option value="person">वैयक्तिक दानशूर</option><option value="csr">CSR / संस्था / कंपनी</option></select>
+<label>पूर्ण नाव (संपर्क व्यक्ती) *</label><input id="nm" required>
+<div id="orgw" class="hide"><label>संस्थेचे / कंपनीचे नाव *</label><input id="org"></div>
+<label>मोबाईल क्रमांक *</label><input id="mb" inputmode="numeric" maxlength="10" pattern="[6-9][0-9]{9}" required>
+<label>शहर / जिल्हा *</label><input id="city" required>
+<label>कोणती मदत देऊ शकता? *</label><textarea id="offer" required placeholder="उदा. इयत्ता ९–१२ ची पाठ्यपुस्तके, वह्या, टॅब्लेट"></textarea>
+<label class="chk"><input type="checkbox" id="ag" required><span>मी कोणताही आर्थिक व्यवहार करणार नाही, विद्यार्थीनामाच्या समन्वयकांमार्फतच संपर्क साधेन, भेट शाळेत किंवा पालकांच्या उपस्थितीत घेईन आणि विद्यार्थ्याची माहिती गोपनीय ठेवीन. *</span></label>
+<button class="btn" id="rg" type="submit" style="width:100%">नोंदणी सादर करा</button><div class="msg" id="rm"></div>
+</form>
+
+<div class="box hide" id="wait"><b id="wt"></b></div>
+
+<div class="hide" id="app">
+<div class="tabs"><button class="on" data-t="needs">गरजा</button><button data-t="mine">माझे विद्यार्थी</button></div>
+<div id="needs"></div><div id="mine" class="hide"></div>
+</div>
+</main>
+
+<script>
+const firebaseConfig={apiKey:"AIzaSyDPj66Nx3dRiX2ECgrhcgobLMcebSeEnUo",authDomain:"vidyarthi-sahaya.firebaseapp.com",projectId:"vidyarthi-sahaya",storageBucket:"vidyarthi-sahaya.firebasestorage.app",messagingSenderId:"929470868963",appId:"1:929470868963:web:0294e9e9e4657a22fc84d6"};
+const SB_FN='https://ctawokkhkmggcvlehquk.supabase.co/functions/v1/vsa-files';
+const SB_KEY='sb_publishable_bLnaHYnPQeRU2TWvR0pksg_2Yzi8cBH';
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth(),db=firebase.firestore(),$=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const show=(i,v)=>$(i).classList.toggle('hide',!v);
+const note=(i,t,c)=>{const m=$(i);m.textContent=t;m.className='msg '+(c||'er')};
+let user=null,me=null;
+
+$('gIn').onclick=()=>auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(x=>note('lm',x.code==='auth/unauthorized-domain'?'हे संकेतस्थळ Firebase मध्ये अधिकृत नाही.':x.message));
+$('eIn').onclick=()=>auth.signInWithEmailAndPassword($('le').value.trim(),$('lp').value).catch(x=>note('lm',x.code==='auth/invalid-credential'?'ईमेल किंवा पासवर्ड चुकीचा आहे.':x.message));
+$('eUp').onclick=async()=>{try{const r=await auth.createUserWithEmailAndPassword($('le').value.trim(),$('lp').value);await r.user.sendEmailVerification();}catch(x){note('lm',x.code==='auth/email-already-in-use'?'हा ईमेल आधीच नोंदणीकृत आहे; साइन इन करा.':x.message)}};
+$('eRs').onclick=async()=>{const e=$('le').value.trim();if(!e){note('lm','आधी ईमेल टाका.');return}try{await auth.sendPasswordResetEmail(e);note('lm','पासवर्ड बदलण्याचा दुवा ईमेलवर पाठवला.','ok')}catch(x){note('lm',x.message)}};
+$('vRe').onclick=async()=>{try{await user.sendEmailVerification();note('vm','मेल पाठवला आहे.','ok')}catch(x){note('vm',x.message)}};
+$('vDone').onclick=async()=>{await user.reload();await user.getIdToken(true);if(auth.currentUser.emailVerified)location.reload();else note('vm','ईमेल अजून पडताळलेला दिसत नाही.')};
+$('type').onchange=()=>{const c=$('type').value==='csr';show('orgw',c);$('org').required=c};
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));show('needs',b.dataset.t==='needs');show('mine',b.dataset.t==='mine')});
+
+auth.onAuthStateChanged(u=>{user=u;
+  $('bar').innerHTML=u?`<span>${esc(u.email)}</span><button class="btn g" id="out">बाहेर पडा</button>`:'';
+  if(u)$('out').onclick=()=>auth.signOut();
+  route();});
+async function route(){
+  ['login','verify','reg','wait','app'].forEach(i=>show(i,false));
+  if(!user){show('login',true);return}
+  if(!user.emailVerified){show('verify',true);return}
+  try{const d=await db.collection('donors').doc(user.uid).get();
+    if(!d.exists){show('reg',true);return}
+    me=d.data();
+    if(me.status==='Approved'){show('app',true);loadNeeds();loadMine();return}
+    $('wt').textContent=me.status==='Rejected'?'तुमची नोंदणी मंजूर झाली नाही. अधिक माहितीसाठी विद्यार्थीनामा समन्वयकांशी संपर्क साधा.':'तुमची नोंदणी प्राप्त झाली आहे. विद्यार्थीनामाच्या पडताळणीनंतर तुम्हाला गरजा दिसतील.';
+    show('wait',true);
+  }catch(x){$('wt').textContent='माहिती लोड झाली नाही: '+x.message;show('wait',true)}
+}
+$('reg').addEventListener('submit',async e=>{e.preventDefault();
+  $('rg').disabled=true;
+  try{await db.collection('donors').doc(user.uid).set({type:$('type').value,name:$('nm').value.trim(),org:$('org').value.trim(),mobile:$('mb').value.trim(),city:$('city').value.trim(),offer:$('offer').value.trim(),email:user.email,agree:true,status:'Pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    route();}
+  catch(x){note('rm',x.code==='permission-denied'?'परवानगी नाकारली: ईमेल पडताळणी तपासा.':x.message)}
+  $('rg').disabled=false});
+
+async function loadNeeds(){
+  const [n,p]=await Promise.all([db.collection('needs').where('open','==',true).get(),db.collection('pledges').where('donorUid','==',user.uid).get()]);
+  const pl=new Set(p.docs.map(d=>d.data().needId));
+  $('needs').innerHTML=n.empty?'<div class="box">सध्या खुल्या गरजा नाहीत. नवीन गरजा आल्यावर येथे दिसतील.</div>':n.docs.map(d=>{const x=d.data();
+    return `<div class="box"><span class="pill">✔ पडताळलेली गरज</span> <b>${esc(x.cls)}</b> · ${esc(x.district)}<p style="margin:.4rem 0">${esc(x.text)}</p>${pl.has(d.id)?'<small>✅ तुम्ही जबाबदारी घेण्याची इच्छा नोंदवली आहे. समन्वयक संपर्क करतील.</small>':`<button class="btn" data-n="${esc(d.id)}">मी जबाबदारी घेऊ इच्छितो</button>`}</div>`}).join('');
+  $('needs').querySelectorAll('[data-n]').forEach(b=>b.onclick=async()=>{
+    const t=prompt('समन्वयकांसाठी संदेश (ऐच्छिक)');if(t===null)return;b.disabled=true;
+    try{await db.collection('pledges').doc(b.dataset.n+'_'+user.uid).set({needId:b.dataset.n,donorUid:user.uid,donorName:me.name,note:t,status:'Interested',createdAt:firebase.firestore.FieldValue.serverTimestamp()});loadNeeds()}
+    catch(x){alert('नोंदवता आले नाही: '+x.message);b.disabled=false}});
+}
+async function loadMine(){
+  const s=await db.collection('assigned').where('donorUid','==',user.uid).get();
+  if(s.empty){$('mine').innerHTML='<div class="box">तुम्हाला अजून कोणताही विद्यार्थी सोपवलेला नाही. विद्यार्थीनामाने तुमची जबाबदारी निश्चित केल्यावर येथे माहिती दिसेल.</div>';return}
+  $('mine').innerHTML=s.docs.map(d=>{const x=d.data();
+    return `<div class="box"><img class="ph" id="ph-${esc(d.id)}" alt=""><b>${esc(x.studentName)}</b> · ${esc(d.id)}
+    <dl><dt>इयत्ता</dt><dd>${esc(x.classCourse)}</dd><dt>शाळा</dt><dd>${esc(x.schoolName)}, ${esc(x.district)}</dd><dt>पालक मोबाईल</dt><dd>${esc(x.parentMobile)}</dd><dt>मदतीचा प्रकार</dt><dd>${esc((x.helpTypes||[]).join(', '))}</dd><dt>गरज</dt><dd>${esc(x.need)}</dd></dl>
+    <p style="margin-top:.6rem;font-size:.85rem;color:#7F1D1D">संपर्क करण्यापूर्वी समन्वयकांना कळवा. भेट शाळेत किंवा पालकांच्या उपस्थितीत घ्या. आर्थिक व्यवहार करू नका.</p></div>`}).join('');
+  s.docs.forEach(async d=>{try{const r=await fetch(SB_FN,{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,'x-firebase-token':await user.getIdToken()},body:JSON.stringify({action:'donorView',appId:d.id})});
+    const j=await r.json();if(j.photo)$('ph-'+d.id).src=j.photo}catch(x){}});
+}
+</script>
+</body>
+</html>
