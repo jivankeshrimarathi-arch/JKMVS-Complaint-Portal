@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>विद्यार्थीनामा सहाय्य — Admin</title>
+<link rel="icon" href="jkmvs-logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Mukta:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--k:#E8650A;--r:#9B1C1C;--rd:#7F1D1D;--rp:#5C0A0A;--g:#F59E0B;--cr:#FFF8F0;--ok:#1E8E3E;--ln:#E8CBB0;--sk:rgba(232,101,10,.28)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Mukta',sans-serif;background:var(--cr);color:#1A0A00;line-height:1.55;font-size:15.5px}
+header{background:linear-gradient(135deg,var(--rp),var(--r));border-bottom:3px solid var(--k);color:#fff;padding:.7rem 1rem}
+header div{max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:.8rem}
+header b{display:flex;align-items:center;gap:.6rem;font-family:'Baloo 2',sans-serif}
+header img{width:38px;height:38px;border-radius:50%;border:2px solid #FFE4C4;background:#fff}
+main{max-width:900px;margin:0 auto;padding:1rem 1rem 4rem}
+.hide{display:none}
+button{font-family:inherit;cursor:pointer}
+.btn{background:var(--k);color:#fff;border:0;border-radius:9px;padding:.65rem 1.2rem;font-weight:700;font-size:.95rem}
+.btn.g{background:#fff;color:var(--r);border:1.5px solid var(--r);padding:.4rem .8rem;font-size:.85rem}
+.btn:disabled{opacity:.55}
+.box{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:1rem;margin-bottom:1rem}
+input,select,textarea{width:100%;padding:.6rem .7rem;border:1.5px solid var(--ln);border-radius:8px;font:inherit;background:#FFFDF9}
+textarea{min-height:80px}
+input:focus,select:focus,textarea:focus{outline:3px solid var(--sk);border-color:var(--k)}
+label{display:block;font-size:.82rem;font-weight:700;color:var(--rd);margin:.7rem 0 .25rem}
+.msg{margin-top:.7rem;padding:.7rem .9rem;border-radius:9px;font-size:.9rem;display:none}
+.msg.ok{display:block;background:#E6F6EA;border:1px solid #9BD3A9;color:#14532d}
+.msg.er{display:block;background:#FDECEC;border:1px solid #E7A3A3;color:var(--rd)}
+.rowb{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem}.rowb .btn{flex:1;min-width:120px}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.8rem}
+@media(max-width:560px){.tools{grid-template-columns:1fr}}
+.cnt{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.8rem}
+.cnt span{background:#fff;border:1px solid var(--ln);border-radius:20px;padding:.2rem .7rem;font-size:.82rem;font-weight:600}
+.item{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:.8rem 1rem;margin-bottom:.6rem;cursor:pointer;display:flex;justify-content:space-between;gap:.8rem;align-items:center}
+.item:hover{border-color:var(--k)}
+.item b{color:var(--rd)}
+.item small{display:block;color:#6a4a30}
+.pill{font-size:.75rem;font-weight:700;border-radius:20px;padding:.2rem .65rem;background:#FFF1DC;color:var(--rd);white-space:nowrap}
+.pill.v{background:#E6F6EA;color:#14532d}.pill.i{background:#FFF4DC;color:#8a5a00}
+dl{display:grid;grid-template-columns:130px 1fr;gap:.35rem .8rem;font-size:.9rem}
+dt{font-weight:700;color:var(--rd)}dd{word-break:break-word;white-space:pre-wrap}
+.imgs{display:flex;gap:.8rem;flex-wrap:wrap;margin:.6rem 0}
+.imgs figure{flex:1;min-width:150px}
+.imgs img{width:100%;border-radius:10px;border:1px solid var(--ln);background:#eee}
+.imgs figcaption{font-size:.78rem;color:#6a4a30;text-align:center}
+.tabs{display:flex;gap:.5rem;margin-bottom:.8rem}.tabs button{flex:1;padding:.6rem;border:2px solid var(--k);background:#fff;color:var(--r);border-radius:10px;font-weight:700}.tabs button.on{background:var(--k);color:#fff}
+.hist{font-size:.85rem;color:#5a3a20}
+</style>
+</head>
+<body>
+<header><div><b><img src="jkmvs-logo.png" alt="">विद्यार्थीनामा सहाय्य — Admin</b><span id="who" style="font-size:.82rem"></span></div></header>
+<main>
+<div class="box" id="login">
+<button class="btn" id="gIn" style="width:100%">Google ने साइन इन करा</button>
+<label for="e">ईमेल</label><input id="e" type="email" autocomplete="email">
+<label for="p">पासवर्ड</label><input id="p" type="password" autocomplete="current-password">
+<div class="rowb"><button class="btn" id="eIn">ईमेलने साइन इन</button></div>
+<div class="msg" id="lm"></div>
+</div>
+
+<div class="box hide" id="denied"><b>या खात्याला Admin/Verifier परवानगी नाही.</b>
+<p style="margin-top:.4rem">Firestore मध्ये staff/{तुमचा UID} दस्तऐवज (role: admin किंवा verifier) असावा लागतो.</p>
+<p id="uid" style="margin:.5rem 0;font-family:monospace;font-size:.85rem;word-break:break-all"></p>
+<button class="btn g" onclick="auth.signOut()">बाहेर पडा</button></div>
+
+<div id="app" class="hide">
+<div class="tabs" id="tabs"><button class="on" data-t="Apps">अर्ज</button><button data-t="Don">दाते</button><button data-t="Pl">प्रतिज्ञा</button></div>
+<div id="tApps">
+<div class="tools"><input id="q" placeholder="ID किंवा विद्यार्थ्याचे नाव शोधा"><select id="fs"><option value="">सर्व स्थिती</option></select></div>
+<div class="cnt" id="cnt"></div>
+<div id="list"></div></div>
+<div id="tDon" class="hide"></div><div id="tPl" class="hide"></div>
+<button class="btn g" onclick="auth.signOut()" style="margin-top:.6rem">बाहेर पडा</button>
+</div>
+
+<div id="detail" class="hide">
+<button class="btn g" id="back">← यादीकडे</button>
+<div class="box" style="margin-top:.7rem"><h2 id="dt" style="font-family:'Baloo 2',sans-serif;color:var(--rd)"></h2><div id="imgs" class="imgs"></div><dl id="dl"></dl></div>
+<div class="box"><b>स्थिती बदला</b>
+<label for="ns">नवी स्थिती</label><select id="ns"></select>
+<div id="irw" class="hide"><label for="ir">अर्जदाराला कळवण्यासाठी संदेश (अतिरिक्त माहिती)</label><textarea id="ir"></textarea></div>
+<div class="rowb"><button class="btn" id="sv">जतन करा</button></div>
+<div class="msg" id="dm"></div>
+<p class="hist" id="hist" style="margin-top:.8rem"></p></div>
+<div class="box hide" id="pub"><b>मदतदात्यांसाठी गरज कार्ड</b><p style="font-size:.85rem;color:#6a4a30">नाव, शाळा, गाव अशी ओळख पटवणारी माहिती वगळा.</p><label for="pt">कार्डचा मजकूर</label><textarea id="pt"></textarea><div class="rowb"><button class="btn" id="pb">कार्ड प्रकाशित करा</button></div><div class="msg" id="pm"></div></div>
+</div>
+</main>
+
+<script>
+const firebaseConfig={apiKey:"AIzaSyDPj66Nx3dRiX2ECgrhcgobLMcebSeEnUo",authDomain:"vidyarthi-sahaya.firebaseapp.com",projectId:"vidyarthi-sahaya",storageBucket:"vidyarthi-sahaya.firebasestorage.app",messagingSenderId:"929470868963",appId:"1:929470868963:web:0294e9e9e4657a22fc84d6"};
+const SB_FN='https://ctawokkhkmggcvlehquk.supabase.co/functions/v1/vsa-files';
+const SB_KEY='sb_publishable_bLnaHYnPQeRU2TWvR0pksg_2Yzi8cBH';
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth(),db=firebase.firestore(),$=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ST=['Received','Under Review','Information Required','Verified','Shared with Potential Donors','Assistance Confirmed','Assistance Provided','Closed'];
+const ROLE={parent:'पालक',student:'स्वतः विद्यार्थी',teacher:'शालेय शिक्षक'};
+const F=[['विद्यार्थी','studentName'],['जन्मतारीख','dob'],['वर्ष','academicYear'],['इयत्ता/कोर्स','classCourse'],['शैक्षणिक कारकीर्द','academicRecord'],['ध्येये','goals'],['वडील','fatherName'],['वडिलांचा व्यवसाय','fatherOccupation'],['आई','motherName'],['आईचा व्यवसाय','motherOccupation'],['पालक मोबाईल','parentMobile'],['कुटुंब सदस्य','familyMembers'],['वार्षिक उत्पन्न','incomeBand'],['निवासी पत्ता','studentAddress'],['शाळा','schoolName'],['UDISE','udise'],['जिल्हा','district'],['शाळा संपर्क','schoolContact'],['शाळेचा पत्ता','schoolAddress'],['मदतीचा प्रकार','helpTypes'],['गरज','need'],['अर्ज करणारा','applicantName'],['भूमिका','applicantRole'],['अर्जदार मोबाईल','applicantMobile'],['अर्जदार पद','applicantDesignation'],['ईमेल','ownerEmail']];
+let user=null,role='',rows=[],cur=null;
+const show=(i,v)=>$(i).classList.toggle('hide',!v);
+const note=(i,t,c)=>{const m=$(i);m.textContent=t;m.className='msg '+(c||'er')};
+const dt=t=>t&&t.toDate?t.toDate().toLocaleDateString('mr-IN'):'';
+
+$('gIn').onclick=()=>auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(x=>note('lm',x.message));
+$('eIn').onclick=()=>auth.signInWithEmailAndPassword($('e').value.trim(),$('p').value).catch(x=>note('lm',x.message));
+$('back').onclick=()=>{show('detail',false);show('app',true)};
+['q','fs'].forEach(i=>$(i).oninput=draw);
+$('fs').innerHTML+=ST.map(s=>`<option>${s}</option>`).join('');
+$('ns').onchange=()=>show('irw',$('ns').value==='Information Required');
+
+auth.onAuthStateChanged(async u=>{
+  user=u;show('login',!u);show('app',false);show('detail',false);show('denied',false);$('who').textContent='';
+  if(!u)return;
+  let s;try{s=await db.collection('staff').doc(u.uid).get();}catch(x){s={exists:false};}
+  if(!s.exists){$('uid').textContent='तुमचा UID: '+u.uid;show('denied',true);return;}
+  role=s.data().role;$('who').textContent=u.email+' · '+role;show('app',true);load();
+});
+
+async function load(){
+  $('list').innerHTML='<div class="box">लोड होत आहे…</div>';
+  try{const s=await db.collection('applications').orderBy('createdAt','desc').limit(300).get();
+    rows=s.docs.map(d=>({id:d.id,...d.data()}));draw();}
+  catch(x){$('list').innerHTML='<div class="box">यादी लोड झाली नाही: '+esc(x.message)+'</div>';}
+}
+function draw(){
+  const q=$('q').value.trim().toLowerCase(),f=$('fs').value;
+  const c={};rows.forEach(r=>c[r.status]=(c[r.status]||0)+1);
+  $('cnt').innerHTML=`<span>एकूण ${rows.length}</span>`+ST.filter(s=>c[s]).map(s=>`<span>${s}: ${c[s]}</span>`).join('');
+  const v=rows.filter(r=>(!f||r.status===f)&&(!q||r.id.toLowerCase().includes(q)||(r.studentName||'').toLowerCase().includes(q)));
+  $('list').innerHTML=v.length?v.map(r=>`<div class="item" data-id="${esc(r.id)}"><div><b>${esc(r.id)}</b> · ${esc(r.studentName)}<small>${esc(r.classCourse)} · ${esc(r.schoolName)} · ${dt(r.createdAt)}</small></div><span class="pill ${r.status==='Verified'?'v':r.status==='Information Required'?'i':''}">${esc(r.status)}</span></div>`).join(''):'<div class="box">अर्ज नाहीत.</div>';
+  $('list').querySelectorAll('.item').forEach(e=>e.onclick=()=>open(e.dataset.id));
+}
+async function open(id){
+  cur=rows.find(r=>r.id===id);show('app',false);show('detail',true);$('dm').className='msg';window.scrollTo(0,0);
+  $('dt').textContent=cur.id+' — '+cur.studentName;
+  $('dl').innerHTML=F.map(([l,k])=>{let v=cur[k];if(v===undefined||v==='')return'';if(k==='applicantRole')v=ROLE[v]||v;if(Array.isArray(v))v=v.join(', ');return`<dt>${l}</dt><dd>${esc(v)}</dd>`}).join('');
+  const opts=role==='admin'?ST:ST.slice(0,4);
+  $('ns').innerHTML=[...new Set([cur.status,...opts])].map(s=>`<option ${s===cur.status?'selected':''}>${s}</option>`).join('');
+  $('ir').value=cur.infoRequest||'';show('irw',cur.status==='Information Required');
+  show('pub',role==='admin'&&['Verified','Shared with Potential Donors'].includes(cur.status));$('pt').value=(cur.helpTypes||[]).join(', ')+' — '+(cur.need||'');$('pm').className='msg';
+  $('hist').innerHTML='<b>इतिहास:</b> '+(cur.statusHistory||[]).map(h=>esc(h.s)+' ('+dt(h.at)+')').join(' → ');
+  $('imgs').innerHTML='<p>फोटो/ओळखपत्र लोड होत आहे…</p>';
+  try{const r=await fetch(SB_FN,{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,'x-firebase-token':await user.getIdToken()},body:JSON.stringify({action:'view',ownerUid:cur.ownerUid,appId:cur.id})});
+    const j=await r.json();if(!r.ok)throw new Error(j.error||r.status);
+    $('imgs').innerHTML=[['photo','विद्यार्थी फोटो'],['idCard','शाळेचे ओळखपत्र']].map(([k,l])=>j[k]?`<figure><a href="${esc(j[k])}" target="_blank" rel="noopener"><img src="${esc(j[k])}" alt="${l}"></a><figcaption>${l}</figcaption></figure>`:`<figure><figcaption>${l}: उपलब्ध नाही</figcaption></figure>`).join('');
+  }catch(x){$('imgs').innerHTML='<p style="color:#7F1D1D">फोटो दिसले नाहीत: '+esc(x.message)+'</p>';}
+}
+$('sv').onclick=async()=>{
+  const st=$('ns').value;
+  if(st===cur.status&&st!=='Information Required'){note('dm','स्थिती बदललेली नाही.');return;}
+  if(st==='Information Required'&&!$('ir').value.trim()){note('dm','अर्जदाराला कोणती माहिती हवी ते लिहा.');return;}
+  const u={status:st,statusHistory:firebase.firestore.FieldValue.arrayUnion({s:st,at:firebase.firestore.Timestamp.now()})};
+  if(st==='Information Required')u.infoRequest=$('ir').value.trim();
+  $('sv').disabled=true;
+  try{await db.collection('applications').doc(cur.id).update(u);
+    cur.status=st;if(u.infoRequest)cur.infoRequest=u.infoRequest;cur.statusHistory=[...(cur.statusHistory||[]),{s:st,at:firebase.firestore.Timestamp.now()}];
+    const i=rows.findIndex(r=>r.id===cur.id);rows[i]=cur;
+    $('hist').innerHTML='<b>इतिहास:</b> '+cur.statusHistory.map(h=>esc(h.s)+' ('+dt(h.at)+')').join(' → ');
+    note('dm','स्थिती जतन झाली.','ok');draw();
+  }catch(x){note('dm',x.code==='permission-denied'?'परवानगी नाही (भूमिका किंवा नियम तपासा).':x.message);}
+  $('sv').disabled=false;
+};
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{['Apps','Don','Pl'].forEach(x=>show('t'+x,x===b.dataset.t));document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));if(b.dataset.t==='Don')loadDon();if(b.dataset.t==='Pl')loadPl()});
+const TS=()=>firebase.firestore.Timestamp.now(),AU=firebase.firestore.FieldValue.arrayUnion;
+$('pb').onclick=async()=>{const t=$('pt').value.trim();if(!t){note('pm','कार्डचा मजकूर लिहा.');return}
+  const b=db.batch();
+  b.set(db.collection('needs').doc(cur.id),{cls:cur.classCourse,district:cur.district,text:t,open:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  const ch=cur.status!=='Shared with Potential Donors';
+  if(ch)b.update(db.collection('applications').doc(cur.id),{status:'Shared with Potential Donors',statusHistory:AU({s:'Shared with Potential Donors',at:TS()})});
+  try{await b.commit();if(ch){cur.status='Shared with Potential Donors';cur.statusHistory=[...(cur.statusHistory||[]),{s:cur.status,at:TS()}];rows[rows.findIndex(r=>r.id===cur.id)]=cur;draw();open(cur.id)}
+    note('pm','गरज कार्ड प्रकाशित झाले.','ok')}catch(x){note('pm',x.message)}};
+async function loadDon(){
+  $('tDon').innerHTML='<div class="box">लोड होत आहे…</div>';
+  try{const s=await db.collection('donors').orderBy('createdAt','desc').get();
+    $('tDon').innerHTML=s.empty?'<div class="box">मदतदाता नाहीत.</div>':s.docs.map(d=>{const x=d.data();
+      return `<div class="box"><b>${esc(x.name)}</b> · ${x.type==='csr'?'CSR: '+esc(x.org):'वैयक्तिक'} <span class="pill ${x.status==='Approved'?'v':''}">${esc(x.status)}</span><br><small>${esc(x.mobile)} · ${esc(x.city)} · ${esc(x.email)}</small><p>${esc(x.offer)}</p>${role==='admin'?`<div class="rowb"><button class="btn" data-u="${d.id}" data-s="Approved">मंजूर</button><button class="btn g" data-u="${d.id}" data-s="Rejected">नाकारा</button></div>`:''}</div>`}).join('');
+    $('tDon').querySelectorAll('[data-u]').forEach(b=>b.onclick=async()=>{try{await db.collection('donors').doc(b.dataset.u).update({status:b.dataset.s});loadDon()}catch(x){alert(x.message)}});
+  }catch(x){$('tDon').innerHTML='<div class="box">'+esc(x.message)+'</div>'}}
+async function loadPl(){
+  $('tPl').innerHTML='<div class="box">लोड होत आहे…</div>';
+  try{const s=await db.collection('pledges').orderBy('createdAt','desc').get();
+    $('tPl').innerHTML=s.empty?'<div class="box">अजून प्रतिज्ञा नाहीत.</div>':s.docs.map(d=>{const x=d.data();
+      return `<div class="box"><b>${esc(x.needId)}</b> ← ${esc(x.donorName)} <span class="pill ${x.status==='Confirmed'?'v':''}">${esc(x.status)}</span><p>${esc(x.note)}</p>${role==='admin'&&x.status==='Interested'?`<button class="btn" data-p="${d.id}" data-a="${esc(x.needId)}" data-d="${esc(x.donorUid)}" data-n="${esc(x.donorName)}">जबाबदारी निश्चित करा</button>`:''}</div>`}).join('');
+    $('tPl').querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>confirmPl(b.dataset.p,b.dataset.a,b.dataset.d,b.dataset.n));
+  }catch(x){$('tPl').innerHTML='<div class="box">'+esc(x.message)+'</div>'}}
+async function confirmPl(pid,appId,donorUid,donorName){
+  if(!confirm('हा विद्यार्थी या मदतदात्याला सोपवायचा? त्याला विद्यार्थ्याचे नाव, फोटो, शाळा व पालकांचा संपर्क दिसेल.'))return;
+  try{const a=await db.collection('applications').doc(appId).get();if(!a.exists){alert('अर्ज सापडला नाही');return}const x=a.data(),b=db.batch();
+    b.set(db.collection('assigned').doc(appId),{donorUid,donorName,ownerUid:x.ownerUid,studentName:x.studentName,classCourse:x.classCourse,schoolName:x.schoolName,district:x.district,parentMobile:x.parentMobile,helpTypes:x.helpTypes,need:x.need,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    b.update(db.collection('pledges').doc(pid),{status:'Confirmed'});
+    b.update(db.collection('needs').doc(appId),{open:false});
+    b.update(db.collection('applications').doc(appId),{status:'Assistance Confirmed',statusHistory:AU({s:'Assistance Confirmed',at:TS()})});
+    await b.commit();const r=rows.find(r=>r.id===appId);if(r){r.status='Assistance Confirmed'}loadPl();
+  }catch(x){alert('अयशस्वी: '+x.message)}}
+</script>
+</body>
+</html>
