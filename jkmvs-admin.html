@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>JKMVS अॅडमिन — सदस्य यादी</title>
+<title>JKMVS ॲडमिन — सदस्य यादी</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Mukta:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{--k:#E8650A;--r:#9B1C1C;--rd:#7F1D1D;--cr:#FFF8F0}
@@ -30,7 +30,7 @@ th{background:var(--rd);color:#fff;position:sticky;top:0}
 </style>
 </head>
 <body>
-<div id="login"><h1>JKMVS अॅडमिन</h1><p style="margin:.8rem 0 1.2rem">फक्त अधिकृत अॅडमिनसाठी</p><button id="go">Google ने लॉगिन करा</button><p id="e0" style="color:#7F1D1D;margin-top:1rem"></p></div>
+<div id="login"><h1>JKMVS ॲडमिन</h1><p style="margin:.8rem 0 1.2rem">फक्त अधिकृत अॅडमिनसाठी</p><button id="go">Google ने लॉगिन करा</button><p id="e0" style="color:#7F1D1D;margin-top:1rem"></p></div>
 
 <div id="app" style="display:none">
   <div class="top"><h1>सदस्य यादी <span id="cnt" style="font-size:1rem;color:#7a5a40"></span></h1>
@@ -44,7 +44,16 @@ th{background:var(--rd);color:#fff;position:sticky;top:0}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-/* JKMVS Registration (नवीन Firebase project) चा config येथे टाका — index.html मधलाच */
+/* JKMVS Registration (नवीन Firebase project) चा config येथे टाका — // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAbcIlj3n4aVSDa5s5LOySNEdc9TIsyW3w",
+  authDomain: "jkmvs-registration.firebaseapp.com",
+  projectId: "jkmvs-registration",
+  storageBucket: "jkmvs-registration.firebasestorage.app",
+  messagingSenderId: "93769177500",
+  appId: "1:93769177500:web:c78d5e27b99dbaa586d059",
+  measurementId: "G-2P36YKLPNW"
+};
 firebase.initializeApp({apiKey:"AIzaSyAbcIlj3n4aVSDa5s5LOySNEdc9TIsyW3w",authDomain:"jkmvs-registration.firebaseapp.com",projectId:"jkmvs-registration",storageBucket:"jkmvs-registration.firebasestorage.app",messagingSenderId:"93769177500",appId:"1:93769177500:web:c78d5e27b99dbaa586d059"});
 var auth=firebase.auth(),db=firebase.firestore(),rows=[],$=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
