@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>JKMVS अॅडमिन — सदस्य यादी</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Mukta:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--k:#E8650A;--r:#9B1C1C;--rd:#7F1D1D;--cr:#FFF8F0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Mukta',sans-serif;background:var(--cr);color:#1A0A00;padding:1rem}
+h1{font-family:'Baloo 2',sans-serif;color:var(--rd);font-size:1.5rem}
+.top{max-width:1200px;margin:0 auto 1rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap}
+button,input{font-family:inherit;font-size:.95rem}
+button{background:var(--k);color:#fff;border:0;border-radius:8px;padding:.5rem 1rem;font-weight:700;cursor:pointer}
+button.alt{background:#fff;color:var(--r);border:1.5px solid var(--r)}
+input{padding:.5rem .8rem;border:1.5px solid #E8CBB0;border-radius:8px;min-width:220px}
+#msg{max-width:1200px;margin:0 auto 1rem;color:var(--rd);font-weight:700}
+.wrap{max-width:1200px;margin:0 auto;overflow-x:auto;background:#fff;border-radius:12px;border:1px solid #F0DCC8}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:.55rem .7rem;border-bottom:1px solid #F5E6D6;text-align:left;white-space:nowrap}
+th{background:var(--rd);color:#fff;position:sticky;top:0}
+.st{font-weight:700;border-radius:20px;padding:.1rem .6rem;font-size:.8rem}
+.st.A{background:#D1FAE5;color:#047857}.st.R{background:#FEE2E2;color:#7F1D1D}
+#login{max-width:420px;margin:15vh auto;background:#fff;border:1px solid #F0DCC8;border-radius:16px;padding:2rem;text-align:center}
+#ph{display:none;position:fixed;inset:0;background:rgba(10,4,0,.85);align-items:center;justify-content:center;z-index:9}
+#ph.o{display:flex}#ph img{max-width:90vw;max-height:80vh;border-radius:12px}
+</style>
+</head>
+<body>
+<div id="login"><h1>JKMVS अॅडमिन</h1><p style="margin:.8rem 0 1.2rem">फक्त अधिकृत अॅडमिनसाठी</p><button id="go">Google ने लॉगिन करा</button><p id="e0" style="color:#7F1D1D;margin-top:1rem"></p></div>
+
+<div id="app" style="display:none">
+  <div class="top"><h1>सदस्य यादी <span id="cnt" style="font-size:1rem;color:#7a5a40"></span></h1>
+    <div class="bar"><input id="q" placeholder="नाव / क्रमांक / मोबाईल / शाळा शोधा"><button id="csv">Excel (CSV) डाउनलोड</button><button class="alt" id="out">लॉगआउट</button></div></div>
+  <div id="msg"></div>
+  <div class="wrap"><table><thead><tr><th>क्र.</th><th>सदस्य क्र.</th><th>नाव</th><th>मोबाईल</th><th>ईमेल</th><th>शाळा/महाविद्यालय</th><th>गाव</th><th>नोंदणी</th><th>स्थिती</th><th>फोटो</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+</div>
+<div id="ph"><img id="phi" alt=""></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* JKMVS Registration (नवीन Firebase project) चा config येथे टाका — index.html मधलाच */
+firebase.initializeApp({apiKey:"AIzaSyAbcIlj3n4aVSDa5s5LOySNEdc9TIsyW3w",authDomain:"jkmvs-registration.firebaseapp.com",projectId:"jkmvs-registration",storageBucket:"jkmvs-registration.firebasestorage.app",messagingSenderId:"93769177500",appId:"1:93769177500:web:c78d5e27b99dbaa586d059"});
+var auth=firebase.auth(),db=firebase.firestore(),rows=[],$=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+$('go').onclick=function(){auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(e){$('e0').textContent=e.message})};
+$('out').onclick=function(){auth.signOut()};
+auth.onAuthStateChanged(function(u){
+  if(!u){$('login').style.display='block';$('app').style.display='none';return}
+  load();
+});
+
+function load(){
+  db.collection('jkmvs_members').orderBy('seq').get().then(function(s){
+    rows=s.docs.map(function(d){return Object.assign({_id:d.id},d.data())});
+    $('login').style.display='none';$('app').style.display='block';draw()
+  }).catch(function(e){
+    auth.signOut();$('login').style.display='block';$('app').style.display='none';
+    $('e0').textContent=e.code==='permission-denied'?'हे खाते अॅडमिन नाही.':e.message});
+}
+
+function draw(){
+  var q=$('q').value.trim().toLowerCase();
+  var list=rows.filter(function(r){return !q||[r.name,r.id,r.mobile,r.institution,r.city,r.email].join(' ').toLowerCase().indexOf(q)>-1});
+  $('cnt').textContent='('+list.length+' / '+rows.length+')';
+  $('tb').innerHTML=list.map(function(r,i){var act=r.status==='Active';
+    return '<tr><td>'+(i+1)+'</td><td>'+esc(r.id)+'</td><td>'+esc(r.name)+'</td><td>'+esc(r.mobile)+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.institution)+'</td><td>'+esc(r.city)+'</td><td>'+esc(r.dateText)+'</td>'+
+      '<td><span class="st '+(act?'A':'R')+'">'+esc(r.status)+'</span></td><td><button class="alt" data-p="'+esc(r._id)+'">पहा</button></td>'+
+      '<td><button class="alt" data-t="'+esc(r._id)+'">'+(act?'रद्द करा':'सक्रिय करा')+'</button></td></tr>'}).join('')}
+
+$('q').oninput=draw;
+$('tb').onclick=function(e){
+  var p=e.target.getAttribute('data-p'),t=e.target.getAttribute('data-t');
+  if(p){var r=rows.find(function(x){return x._id===p});$('phi').src=r.photo;$('ph').classList.add('o')}
+  if(t){var m=rows.find(function(x){return x._id===t}),ns=m.status==='Active'?'Revoked':'Active';
+    if(!confirm(m.name+' ('+m.id+') ची स्थिती "'+ns+'" करायची?'))return;
+    var b=db.batch();b.update(db.collection('jkmvs_members').doc(m._id),{status:ns});b.update(db.collection('jkmvs_verify').doc(m.id),{status:ns});
+    b.commit().then(function(){m.status=ns;draw();$('msg').textContent=''}).catch(function(er){$('msg').textContent='त्रुटी: '+er.message})}};
+$('ph').onclick=function(){$('ph').classList.remove('o')};
+
+$('csv').onclick=function(){
+  var H=['सदस्य क्र.','नोंदणी दिनांक','पूर्ण नाव','ईमेल','मोबाईल','जन्मतारीख','लिंग','गाव/शहर','शाळा/महाविद्यालय','वर्ग/अभ्यासक्रम','आवडीची क्षेत्रे','पालक संमती','स्थिती'];
+  var K=['id','dateText','name','email','mobile','dob','gender','city','institution','course','interests','parent','status'];
+  function cell(v){if(Array.isArray(v))v=v.join('; ');if(v===true)v='Yes';if(v===false||v==null)v='';v=String(v);if(/^[=+\-@]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'}
+  var out=[H.map(cell).join(',')].concat(rows.map(function(r){return K.map(function(k){return cell(r[k])}).join(',')})).join('\r\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+out],{type:'text/csv;charset=utf-8'}));
+  a.download='JKMVS-members-'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove()};
+</script>
+</body>
+</html>
