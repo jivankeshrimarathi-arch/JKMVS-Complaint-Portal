@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jkmvs-cache-v8';
+const CACHE_NAME = 'jkmvs-cache-v9';
 const SHELL_FILES = [
   'index.html',
   'vidyarthi-manch.html',
@@ -31,7 +31,8 @@ self.addEventListener('activate', (e) => {
 // the cache is only used as a fallback if there's no internet connection.
 self.addEventListener('fetch', (e) => {
   const url = e.request.url;
-  if (url.includes('ibb.co') || url.includes('wsrv.nl') || url.includes('weserv.nl')) return; // चित्रे थेट ब्राउझरवर सोडा
+  if (e.request.method !== 'GET') return;
+  if (/ibb\.co|wsrv\.nl|weserv\.nl|youtube\.com|youtu\.be|ytimg\.com|googlevideo\.com|instagram\.com|cdninstagram\.com/.test(url)) return; // थेट ब्राउझरवर सोडा
   if (url.includes('script.google.com') || url.includes('ipify.org') || url.includes('cloudinary.com') || url.includes('googleapis.com') || url.includes('firebaseapp.com') || url.includes('gstatic.com')) {
     e.respondWith(fetch(e.request));
     return;
