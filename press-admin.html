@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Admin — प्रेस रिलीज</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Mukta:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>:root{--k:#E8650A;--r:#9B1C1C;--rp:#5C0A0A;--cr:#FFF8F0}*{box-sizing:border-box;margin:0}body{font-family:'Mukta',sans-serif;background:var(--cr);color:#1A0A00;line-height:1.6}
+.top{background:linear-gradient(135deg,var(--rp),var(--r));color:#fff;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}.wrap{max-width:900px;margin:auto;padding:1.2rem 1rem 3rem}
+.box{background:#fff;border-radius:12px;padding:1.2rem;box-shadow:0 3px 14px rgba(0,0,0,.08);margin-bottom:1.2rem}label{display:block;font-weight:700;margin:.8rem 0 .2rem;font-size:.95rem}
+input,select,textarea{width:100%;padding:.6rem;border:1.5px solid #e0cdb8;border-radius:8px;font:inherit}textarea{min-height:110px}.row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+button{background:var(--k);color:#fff;border:0;padding:.55rem 1rem;border-radius:8px;font:inherit;font-weight:700;cursor:pointer}button.g{background:#fff;color:var(--r);border:1.5px solid var(--r)}button.d{background:#888}
+.it{display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:.7rem 0;border-bottom:1px solid #f0e0cc}.it small{color:#6b5646}.st{font-size:.8rem;padding:.05rem .5rem;border-radius:10px;background:#e6f4ea;color:#1E8E3E}.st.dr{background:#fff3cd;color:#856404}
+.m{margin-top:.6rem;font-weight:700}#login{max-width:360px;margin:3rem auto;text-align:center}@media(max-width:600px){.row{grid-template-columns:1fr}}</style></head><body>
+<div class="top"><b>📣 प्रेस रिलीज Admin</b><span id="who"></span></div>
+<div class="wrap"><div id="login" class="box"><h2>Admin Login</h2><label>Email</label><input id="em" type="email"><label>Password</label><input id="pw" type="password"><p class="m" id="le" style="color:#9B1C1C"></p><button onclick="login()" style="margin-top:1rem;width:100%">Login</button></div>
+<div id="app" hidden>
+<div class="box"><h2 id="ft">नवीन प्रसिद्धीपत्रक</h2>
+<label>शीर्षक *</label><input id="title"><label>थोडक्यात वर्णन (२–३ ओळी) *</label><textarea id="excerpt" style="min-height:70px"></textarea>
+<label>संपूर्ण मजकूर * (प्रत्येक परिच्छेदानंतर एक रिकामी ओळ सोडा)</label><textarea id="content" style="min-height:220px"></textarea>
+<label>महत्त्वाचे मुद्दे (प्रत्येक ओळीत एक)</label><textarea id="highlights" style="min-height:70px"></textarea>
+<div class="row"><div><label>श्रेणी *</label><input id="category" list="cats"><datalist id="cats"></datalist></div><div><label>तारीख *</label><input id="date" type="date"></div></div>
+<div class="row"><div><label>ठिकाण</label><input id="location" value="नाशिक"></div><div><label>संदर्भ क्रमांक</label><input id="referenceNumber"></div></div>
+<div class="row"><div><label>प्रसिद्ध करणारे</label><input id="author" value="जीवन केशरी मराठी विद्यार्थी समूह, नाशिक"></div><div><label>टॅग्ज (स्वल्पविरामाने)</label><input id="tags"></div></div>
+<div class="row"><div><label>फोटो (अपलोड)</label><input id="imgf" type="file" accept="image/*"></div><div><label>किंवा फोटो URL</label><input id="featuredImage"></div></div>
+<div class="row"><div><label>PDF (अपलोड)</label><input id="pdff" type="file" accept="application/pdf"></div><div><label>किंवा PDF URL</label><input id="pdfUrl"></div></div>
+<div class="row"><div><label>SEO Title</label><input id="seoTitle"></div><div><label>स्लग (इंग्रजीत; रिकामे सोडल्यास आपोआप)</label><input id="slug" placeholder="digilocker-demand"></div></div>
+<label>SEO Description</label><input id="seoDescription"><label>स्थिती</label><select id="status"><option value="published">Publish</option><option value="draft">Draft</option></select>
+<div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap"><button id="sb" onclick="save()">जतन करा</button><button class="d" onclick="reset()">नवीन / रद्द</button></div><p class="m" id="msg"></p></div>
+<div class="box"><div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap"><h2>सर्व प्रसिद्धीपत्रके</h2><button class="g" onclick="exportJson()">SEO साठी JSON डाउनलोड</button></div><div id="list"></div></div></div></div>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyDD5o-yg5LDfvNuG8eyNh-WdH-GCSCRmYY",authDomain:"vidyarthi---manch.firebaseapp.com",projectId:"vidyarthi---manch",storageBucket:"vidyarthi---manch.firebasestorage.app",appId:"1:455378425843:web:1e2b594c03d966d7e92486"});
+const auth=firebase.auth(),db=firebase.firestore(),C=db.collection('press_releases'),$=i=>document.getElementById(i);let items=[],edit=null;
+const CLOUD='gbsglqfq',PRESET='vidyarthi_manch',DEF=['शिक्षण','विद्यार्थी प्रश्न','शासन व प्रशासन','महाराष्ट्र बोर्ड','महाविद्यालयीन शिक्षण','AI व तंत्रज्ञान','सामाजिक उपक्रम','विद्यार्थी हक्क','निवेदने','मागण्या व सूचना','कार्यक्रम व उपक्रम','इतर'];
+async function up(f){const fd=new FormData();fd.append('file',f);fd.append('upload_preset',PRESET);const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/auto/upload`,{method:'POST',body:fd}),o=await r.json();if(!o.secure_url)throw new Error(o.error&&o.error.message||'अपलोड अयशस्वी');return o.secure_url}
+auth.onAuthStateChanged(u=>{if(u){$('login').hidden=true;$('app').hidden=false;$('who').textContent=u.email;reset();load()}});
+async function login(){try{await auth.signInWithEmailAndPassword($('em').value.trim(),$('pw').value)}catch(e){$('le').textContent='❌ '+e.code}}
+function reset(){edit=null;$('ft').textContent='नवीन प्रसिद्धीपत्रक';['title','excerpt','content','highlights','category','referenceNumber','tags','featuredImage','pdfUrl','seoTitle','seoDescription','slug'].forEach(i=>$(i).value='');$('slug').disabled=false;$('date').value=new Date().toISOString().slice(0,10);$('status').value='published';$('imgf').value='';$('pdff').value='';$('msg').textContent=''}
+async function save(){const m=$('msg');m.style.color='#9B1C1C';const v=i=>$(i).value.trim();
+if(!v('title')||!v('excerpt')||!v('content')||!v('category')||!v('date')){m.textContent='शीर्षक, वर्णन, मजकूर, श्रेणी व तारीख आवश्यक आहेत';return}
+$('sb').disabled=true;m.style.color='#444';m.textContent='जतन होत आहे…';
+try{let img=v('featuredImage'),pdf=v('pdfUrl');if($('imgf').files[0])img=await up($('imgf').files[0]);if($('pdff').files[0])pdf=await up($('pdff').files[0]);
+let slug=edit||v('slug').toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-+|-+$/g,'')||('pr-'+v('date')+'-'+Math.random().toString(36).slice(2,6));
+const d={title:v('title'),slug,excerpt:v('excerpt'),content:v('content'),highlights:$('highlights').value.split('\n').map(x=>x.trim()).filter(Boolean),category:v('category'),date:v('date'),location:v('location'),referenceNumber:v('referenceNumber'),featuredImage:img,pdfUrl:pdf,author:v('author'),tags:v('tags').split(',').map(x=>x.trim()).filter(Boolean),status:$('status').value,seoTitle:v('seoTitle'),seoDescription:v('seoDescription'),modified:new Date().toISOString().slice(0,10)};
+await C.doc(slug).set(d);m.style.color='#1E8E3E';m.textContent='✅ जतन झाले'+(d.status=='published'?' — वेबसाइटवर दिसेल':' (Draft)');reset();load()}catch(e){m.style.color='#9B1C1C';m.textContent='❌ '+e.message}$('sb').disabled=false}
+async function load(){const s=await C.get();items=s.docs.map(d=>d.data()).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+$('cats').innerHTML=[...new Set([...DEF,...items.map(x=>x.category)])].map(c=>`<option>${c.replace(/"/g,'')}</option>`).join('');
+$('list').innerHTML=items.map((r,i)=>`<div class="it"><div><b></b><br><small>${r.date} · ${r.category||''} · <span class="st ${r.status=='published'?'':'dr'}">${r.status}</span></small></div><div style="display:flex;gap:.3rem;flex-wrap:wrap"><button class="g" onclick="wa(${i})">WhatsApp</button><button class="g" onclick="ed(${i})">संपादन</button><button class="g" onclick="tg(${i})">${r.status=='published'?'Draft करा':'Publish करा'}</button><button class="d" onclick="del(${i})">हटवा</button></div></div>`).join('')||'<p>अजून काहीही नाही</p>';
+[...$('list').querySelectorAll('.it b')].forEach((b,i)=>b.textContent=items[i].title)}
+function ed(i){const r=items[i];edit=r.slug;$('ft').textContent='संपादन';['title','excerpt','content','category','date','location','referenceNumber','author','featuredImage','pdfUrl','seoTitle','seoDescription','status'].forEach(k=>$(k).value=r[k]||'');$('highlights').value=(r.highlights||[]).join('\n');$('tags').value=(r.tags||[]).join(', ');$('slug').value=r.slug;$('slug').disabled=true;scrollTo(0,0)}
+async function tg(i){const r=items[i];await C.doc(r.slug).update({status:r.status=='published'?'draft':'published',modified:new Date().toISOString().slice(0,10)});load()}
+async function del(i){if(confirm('कायमचे हटवायचे?')){await C.doc(items[i].slug).delete();load()}}
+function wa(i){const r=items[i],u=location.origin+'/press-release.html?s='+encodeURIComponent(r.slug);let t=r.content;if(t.length>1200)t=t.slice(0,1200).replace(/\s\S*$/,'')+'…';
+open('https://wa.me/?text='+encodeURIComponent(`📰 *प्रसिद्धीपत्रक*\n*${r.title}*\n\n${t}\n\n📅 ${r.date}${r.location?' | 📍 '+r.location:''}${r.referenceNumber?'\nसंदर्भ क्र.: '+r.referenceNumber:''}\n🔗 संपूर्ण प्रसिद्धीपत्रक: ${u}\n\n— जीवन केशरी मराठी विद्यार्थी समूह, नाशिक\n✉️ jivankeshrimarathi@gmail.com`),'_blank')}
+function exportJson(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(items,null,1)],{type:'application/json'}));a.download='press-releases-export.json';a.click()}
+</script></body></html>
