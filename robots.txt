@@ -1,8 +1,10 @@
 User-agent: *
 Allow: /
-Disallow: /vidyarthi-nama-admin.html
-Disallow: /vidyarthi-manch-admin.html
-Disallow: /vidyarthi-sahayya-admin.html
-Disallow: /press-admin.html
-Disallow: /jkmvs-admin.html
+
+Disallow: /JKMVS-Complaint-Portal/vidyarthi-nama-admin.html
+Disallow: /JKMVS-Complaint-Portal/vidyarthi-manch-admin.html
+Disallow: /JKMVS-Complaint-Portal/vidyarthi-sahayya-admin.html
+Disallow: /JKMVS-Complaint-Portal/press-admin.html
+Disallow: /JKMVS-Complaint-Portal/jkmvs-admin.html
+
 Sitemap: https://jivankeshrimarathi-arch.github.io/JKMVS-Complaint-Portal/sitemap.xml
