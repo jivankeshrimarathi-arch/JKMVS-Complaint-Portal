@@ -1,0 +1,6 @@
+# Digital press: never commit exports (may hold drafts) or credentials
+press-releases-export.json
+*service-account*.json
+serviceAccount*.json
+__pycache__/
+*.pyc
