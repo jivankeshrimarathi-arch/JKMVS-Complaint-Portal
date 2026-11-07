@@ -1,0 +1,65 @@
+# JKMVS Digital Press build. MANUAL ONLY. Nothing is deployed unless "publish" is ticked.
+# Needs repository secret FIREBASE_SERVICE_ACCOUNT (see docs/DIGITAL-PRESS-IMPLEMENTATION.md).
+# TODO(owner): pin `uses:` to verified commit SHAs before enabling (tags shown for readability).
+name: press-publish
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Commit generated files to main (production). Leave unticked for a dry run."
+        type: boolean
+        default: false
+      allow_shrink:
+        description: "Allow fewer published articles than today (use after unpublishing on purpose)"
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: press-publish
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install export dependency
+        run: pip install firebase-admin
+      - name: Export published releases (fails safely; writes nothing on error)
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: python scripts/export_firestore.py press-releases-export.json
+      - name: Validate export
+        run: python build_press.py --check-only --export press-releases-export.json
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+      - name: Build
+        env:
+          ALLOW_SHRINK: ${{ inputs.allow_shrink && '1' || '0' }}
+        run: python build_press.py --export press-releases-export.json --sync-json
+      - name: Upload build for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: press-build
+          path: |
+            press/
+            press-releases/
+            press-releases.html
+            sitemap.xml
+            rss.xml
+            feed.xml
+            robots.txt
+      - name: Commit and push (only when publish is ticked)
+        if: ${{ inputs.publish }}
+        run: |
+          git config user.name "jkmvs-press-bot"
+          git config user.email "press-bot@users.noreply.github.com"
+          git add press press-releases press-releases.html press-release.html press-releases.json sitemap.xml rss.xml feed.xml robots.txt index.html
+          git diff --cached --quiet && echo "no changes" || (git commit -m "Build digital press" && git push origin main)
