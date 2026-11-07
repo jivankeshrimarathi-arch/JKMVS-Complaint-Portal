@@ -1,0 +1,8 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyC_wrVDX814OdBFfn9e_2MWDojKcJDvUvQ",
+  authDomain: "jkmvs-press-note.firebaseapp.com",
+  projectId: "jkmvs-press-note",
+  storageBucket: "jkmvs-press-note.firebasestorage.app",
+  messagingSenderId: "982704485786",
+  appId: "1:982704485786:web:6ecfefcb40aff23c7f3623"
+};
